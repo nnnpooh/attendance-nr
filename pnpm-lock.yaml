@@ -111,9 +111,6 @@ importers:
       '@types/passport-local':
         specifier: ^1.0.38
         version: 1.0.38
-      '@types/passport-oauth2':
-        specifier: ^1.8.0
-        version: 1.8.0
       drizzle-kit:
         specifier: ^0.31.11
         version: 0.31.11
@@ -696,14 +693,8 @@ packages:
   '@types/node@26.6.6':
     resolution: {integrity: sha512-MzQj+8Kx3XI40OmUAE6Qoh58ZMNstNNMwn2nfd3qWsfe7nDNSqJNzes4njhz6AHwrSHOffSLwXU6yb474Q4aog==}
 
-  '@types/oauth@0.9.6':
-    resolution: {integrity: sha512-H9TRCVKBNOhZZmyHLqFt9drPM9l+ShWiqqJijU1B8P3DX3ub84NjxDuy+Hjrz+fEca5Kwip3qPMKNyiLgNJtIA==}
-
   '@types/passport-local@1.0.38':
     resolution: {integrity: sha512-nsrW4A963lYE7lNTv9cr5WmiUD1ibYJvWrpE13oxApFsRt77b0RdtZvKbCdNIY4v/QZ6TRQWaDDEwV1kCTmcXg==}
-
-  '@types/passport-oauth2@1.8.0':
-    resolution: {integrity: sha512-6//z+4orIOy/g3zx17HyQ71GSRK4bs7Sb+zFasRoc2xzlv7ZCJ+vkDBYFci8U6HY+or6Zy7ajf4mz4rK7nsWJQ==}
 
   '@types/passport-strategy@0.2.38':
     resolution: {integrity: sha512-GC6eMqqojOooq993Tmnmp7AUTbbQSgilyvpCYQjT+H6JfG/g6RGc7nXEniZlp0zyKJ0WUdOiZWLBZft9Yug1uA==}
@@ -2539,21 +2530,11 @@ snapshots:
     dependencies:
       undici-types: 8.9.0
 
-  '@types/oauth@0.9.6':
-    dependencies:
-      '@types/node': 26.6.6
-
   '@types/passport-local@1.0.38':
     dependencies:
       '@types/express': 5.0.6
       '@types/passport': 1.0.17
       '@types/passport-strategy': 0.2.38
-
-  '@types/passport-oauth2@1.8.0':
-    dependencies:
-      '@types/express': 5.0.6
-      '@types/oauth': 0.9.6
-      '@types/passport': 1.0.17
 
   '@types/passport-strategy@0.2.38':
     dependencies:
