@@ -8,16 +8,14 @@ block content
             strong Format
         p One row per student per course. One file can fill many courses and sections.
         pre
-            code=`${headers.join(",")}\n259103-2568-1,001,650612345,Somchai,Jaidee,somchai_j@cmu.ac.th\n259500-2568-1,002,650612345,Somchai,Jaidee,`
+            code=`${headers.join(",")}\n259103-2568-1,001,650612345,Somchai,Jaidee\n259500-2568-1,002,650612345,Somchai,Jaidee`
         ul
             li
                 code course_key
                 |  and
                 code section
                 |  must already exist (see the table below). Section "1" is read as "001".
-            li
-                code email
-                |  is optional. Existing students' names are updated from the file.
+            li Existing students' names are updated from the file. Extra columns (e.g. email) are ignored.
             li A student can be in only one section per course; conflicts are shown and skipped.
         a(href="/import/template.csv") Download template
 

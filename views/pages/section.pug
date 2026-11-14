@@ -75,8 +75,6 @@ block content
                         input(name="firstname" placeholder="required if new")
                     label Last name
                         input(name="lastname" placeholder="required if new")
-                    label Email
-                        input(name="email" type="email")
                 label
                     input(type="checkbox" name="move")
                     | Move here if already in another section of this course
@@ -88,7 +86,6 @@ block content
                         tr
                             th ID
                             th Name
-                            th Email
                             th LINE
                             th
                     tbody
@@ -97,7 +94,6 @@ block content
                                 td
                                     a(href=`/students/${s.id}`)=s.id
                                 td=`${s.firstname} ${s.lastname}`
-                                td=s.email
                                 td
                                     if s.lineUserId
                                         i(class="fa-solid fa-check pico-color-green-400" title="LINE linked")

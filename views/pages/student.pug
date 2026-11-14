@@ -96,8 +96,6 @@ block content
                         input(name="firstname" value=student.firstname required)
                     label Last name
                         input(name="lastname" value=student.lastname required)
-                    label Email
-                        input(name="email" type="email" value=student.email)
                 button(type="submit") Save
             hr
             button(class="danger" hx-delete=`/students/${student.id}`

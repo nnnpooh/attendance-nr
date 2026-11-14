@@ -17,18 +17,15 @@ export function validateStudentInput(input: {
   id: string;
   firstname: string;
   lastname: string;
-  email?: string;
 }) {
   const id = String(input.id ?? "").trim();
   const firstname = String(input.firstname ?? "").trim();
   const lastname = String(input.lastname ?? "").trim();
-  const email = String(input.email ?? "").trim();
   const errors: string[] = [];
   if (!STUDENT_ID_RE.test(id)) errors.push(`invalid student ID "${id}" (need 9 digits)`);
   if (!firstname) errors.push("missing firstname");
   if (!lastname) errors.push("missing lastname");
-  if (email && !/^[^@\s]+@[^@\s]+$/.test(email)) errors.push(`invalid email "${email}"`);
-  return { value: { id, firstname, lastname, email }, errors };
+  return { value: { id, firstname, lastname }, errors };
 }
 
 export async function getStudent(id: string) {
@@ -52,8 +49,7 @@ export async function searchStudents(q: string, limit = 200) {
     ? or(
         like(studentsTable.id, term),
         like(studentsTable.firstname, term),
-        like(studentsTable.lastname, term),
-        like(studentsTable.email, term)
+        like(studentsTable.lastname, term)
       )
     : undefined;
   const rows = await dbClient
@@ -61,7 +57,6 @@ export async function searchStudents(q: string, limit = 200) {
       id: studentsTable.id,
       firstname: studentsTable.firstname,
       lastname: studentsTable.lastname,
-      email: studentsTable.email,
       lineUserId: lineAccountsTable.lineUserId,
     })
     .from(studentsTable)
@@ -81,7 +76,6 @@ export async function upsertStudent(input: {
   id: string;
   firstname: string;
   lastname: string;
-  email?: string;
 }) {
   const { value, errors } = validateStudentInput(input);
   if (errors.length) throw new UserError(errors.join("; "));
@@ -93,7 +87,6 @@ export async function upsertStudent(input: {
       set: {
         firstname: value.firstname,
         lastname: value.lastname,
-        email: value.email,
         updatedAt: new Date(),
       },
     });
@@ -106,7 +99,6 @@ export async function getSectionRoster(sectionId: string) {
       id: studentsTable.id,
       firstname: studentsTable.firstname,
       lastname: studentsTable.lastname,
-      email: studentsTable.email,
       lineUserId: lineAccountsTable.lineUserId,
     })
     .from(enrollmentsTable)

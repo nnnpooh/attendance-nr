@@ -9,8 +9,10 @@ import { UserError } from "@db/repos/errors.js";
 /**
  * CSV roster import.
  *
- *   course_key,section,cmu_id,firstname,lastname,email
- *   259103-2568-1,001,650612345,Somchai,Jaidee,somchai_j@cmu.ac.th
+ *   course_key,section,cmu_id,firstname,lastname
+ *   259103-2568-1,001,650612345,Somchai,Jaidee
+ *
+ * Extra columns (e.g. an old "email" column) are ignored.
  *
  * Two steps: analyseCsv() (no writes, for the preview) and commitCsv()
  * (re-analyses the same text and applies it in one transaction).
@@ -22,7 +24,6 @@ export const CSV_HEADERS = [
   "cmu_id",
   "firstname",
   "lastname",
-  "email",
 ] as const;
 
 const HEADER_ALIASES: Record<string, string> = {
@@ -45,7 +46,6 @@ export type AnalysedRow = {
   studentId: string;
   firstname: string;
   lastname: string;
-  email: string;
   action: RowAction;
   studentChange: StudentChange;
   /** "old -> new" descriptions when studentChange is "update". */
@@ -91,7 +91,7 @@ function parseCsv(text: string): Record<string, string>[] {
   if (records.length > MAX_ROWS)
     throw new UserError(`Too many rows (${records.length}); max is ${MAX_ROWS}.`);
   const headers = Object.keys(records[0]);
-  const missing = CSV_HEADERS.filter((h) => h !== "email" && !headers.includes(h));
+  const missing = CSV_HEADERS.filter((h) => !headers.includes(h));
   if (missing.length)
     throw new UserError(
       `Missing column(s): ${missing.join(", ")}. Expected header: ${CSV_HEADERS.join(",")}`
@@ -141,7 +141,6 @@ export async function analyseCsv(text: string): Promise<Analysis> {
       id: r.cmu_id,
       firstname: r.firstname,
       lastname: r.lastname,
-      email: r.email,
     });
     const row: AnalysedRow = {
       line: idx + 2, // header is line 1
@@ -150,7 +149,6 @@ export async function analyseCsv(text: string): Promise<Analysis> {
       studentId: value.id,
       firstname: value.firstname,
       lastname: value.lastname,
-      email: value.email,
       action: "enroll",
       studentChange: null,
       changes: [],
@@ -195,8 +193,6 @@ export async function analyseCsv(text: string): Promise<Analysis> {
           row.changes.push(`firstname: ${ex.firstname} → ${row.firstname}`);
         if (ex.lastname !== row.lastname)
           row.changes.push(`lastname: ${ex.lastname} → ${row.lastname}`);
-        if (row.email && ex.email !== row.email)
-          row.changes.push(`email: ${ex.email || "(none)"} → ${row.email}`);
         row.studentChange = row.changes.length ? "update" : "same";
       }
     }
@@ -262,14 +258,12 @@ export async function commitCsv(text: string) {
             id: r.studentId,
             firstname: r.firstname,
             lastname: r.lastname,
-            email: r.email,
           })
           .onConflictDoUpdate({
             target: studentsTable.id,
             set: {
               firstname: r.firstname,
               lastname: r.lastname,
-              ...(r.email ? { email: r.email } : {}),
               updatedAt: now,
             },
           })

@@ -46,7 +46,6 @@ router.post("/students/:id", async (req, res) => {
     id: req.params.id,
     firstname: str(req.body.firstname),
     lastname: str(req.body.lastname),
-    email: str(req.body.email),
   });
   hxRefresh(res);
 });

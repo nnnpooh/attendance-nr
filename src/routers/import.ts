@@ -29,7 +29,7 @@ router.get("/import/template.csv", (req, res) => {
   res.send(
     "﻿" +
       CSV_HEADERS.join(",") +
-      "\r\n259103-2568-1,001,650612345,Somchai,Jaidee,somchai_j@cmu.ac.th\r\n"
+      "\r\n259103-2568-1,001,650612345,Somchai,Jaidee\r\n"
   );
 });
 

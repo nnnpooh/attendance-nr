@@ -121,7 +121,6 @@ export const studentsTable = sqliteTable("students", {
   id: text("id").primaryKey(),
   firstname: text("firstname").notNull(),
   lastname: text("lastname").notNull(),
-  email: text("email").notNull().default(""),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$default(() => new Date()),

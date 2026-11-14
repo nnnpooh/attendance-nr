@@ -47,13 +47,12 @@ export const msg = {
 
   // Info / record
   info: (
-    s: { id: string; firstname: string; lastname: string; email: string },
+    s: { id: string; firstname: string; lastname: string },
     enrollments: { code: string; section: string; year: number; semester: number }[]
   ) =>
     [
       `รหัส / ID: ${s.id}`,
       `ชื่อ / Name: ${s.firstname} ${s.lastname}`,
-      s.email ? `Email: ${s.email}` : null,
       enrollments.length
         ? "วิชา / Courses:\n" +
           enrollments

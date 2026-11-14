@@ -23,7 +23,6 @@ div(class="overflow-auto")
                 th sec
                 th ID
                 th Name
-                th Email
                 th Notes
         tbody
             each r in analysis.rows
@@ -40,7 +39,6 @@ div(class="overflow-auto")
                     td=r.section
                     td=r.studentId
                     td=`${r.firstname} ${r.lastname}`
-                    td=r.email
                     td
                         if r.studentChange === "new" && r.action !== "error"
                             div

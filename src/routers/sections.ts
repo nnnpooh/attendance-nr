@@ -49,14 +49,12 @@ router.post("/sections/:id/students", async (req, res) => {
   const id = str(req.body.id);
   const firstname = str(req.body.firstname);
   const lastname = str(req.body.lastname);
-  const email = str(req.body.email);
   const existing = await getStudent(id);
-  if (!existing || firstname || lastname || email) {
+  if (!existing || firstname || lastname) {
     await upsertStudent({
       id,
       firstname: firstname || existing?.firstname || "",
       lastname: lastname || existing?.lastname || "",
-      email: email || existing?.email || "",
     });
   }
   const r = await enrollStudent(id, section.id, { move: req.body.move === "on" });
