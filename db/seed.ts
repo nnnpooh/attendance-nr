@@ -10,7 +10,8 @@ const seedAccountsData = JSON.parse(fs.readFileSync(seedAccountsFile, "utf-8"));
 async function insertData() {
   seedAccountsData.forEach(
     async (account: {
-      username: string;
+      name: string;
+      email: string;
       password: string;
       isAdmin: boolean;
     }) => {
@@ -20,8 +21,8 @@ async function insertData() {
           .insert(usersTable)
           .values([
             {
-              name: "Admin User",
-              email: account.username,
+              name: account.name,
+              email: account.email,
               isAdmin: account.isAdmin,
               password: hashedPassword,
               avatarURL: "logos/robot.png",
