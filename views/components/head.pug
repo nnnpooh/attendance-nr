@@ -4,7 +4,9 @@ head
     title=title
     script(src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js" integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V" crossorigin="anonymous")
     script(src="/script.js" defer)
-    link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css")
+    //- Pico, violet theme (full build: we use .grid, .secondary, .outline, …).
+    link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.violet.min.css")
+    //- .pico-color-* utility classes (green/red/amber text).
     link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css")
     //- Noto Sans for Latin text, Noto Sans Thai for Thai (e.g. student names).
     link(rel="preconnect" href="https://fonts.googleapis.com")

@@ -420,10 +420,11 @@ tr.row-open td {
   text-align: center;
   border-radius: var(--pico-border-radius);
   overflow: hidden;
-  /* Dark wash so white text stays readable over the photo */
+  /* Violet wash (matches the Pico violet theme), darker towards the bottom
+     so the white text stays readable over the photo */
   background:
-    linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.6)),
-    url("/img/pexels-freestockpro-12932901.jpg") 70% center / cover no-repeat;
+    linear-gradient(rgba(124, 58, 173, 0.35), rgba(40, 12, 70, 0.65)),
+    url("/img/pexels-umudicreative-17589786.jpg") 70% center / cover no-repeat;
 }
 .hero-content {
   padding: 2rem 1rem;
