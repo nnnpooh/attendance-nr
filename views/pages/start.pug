@@ -1,0 +1,30 @@
+extends ../layouts/main.pug
+
+block content
+    h1 Get Started
+    div(class="start-grid")
+        //- Left: QR + account
+        article(class="start-qr")
+            img(src=oa.qr alt=`QR code to add ${oa.name} on LINE` width="540" height="540")
+            p(class="start-oa-name")=oa.name
+            p(class="start-oa-id")=oa.id
+            a(href=oa.addFriendUrl role="button" class="line-button" target="_blank" rel="noopener")
+                i(class="fa-brands fa-line")
+                |  Add Friend
+
+        //- Right: steps
+        div(class="start-steps")
+            ol
+                li
+                    strong Scan
+                    span the QR code with LINE (or tap Add Friend on your phone).
+                li
+                    strong Add friend
+                    span=`${oa.name} (${oa.id}).`
+                li
+                    strong Register
+                    span Type #[code reg &lt;student ID&gt;], e.g. #[code reg 690612345]
+                li
+                    strong Check in
+                    span In class, send the 6-digit code shown on screen.
+            p(class="start-more") Other commands: #[code info] (my info), #[code record] (my check-ins).

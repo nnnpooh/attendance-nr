@@ -9,7 +9,7 @@ import multer from "multer";
 import sessionIns, { formatSession } from "./auth/session.js";
 import passportIns from "./auth/passport.js";
 import setupCommonMiddleWares from "./middlewares.js";
-import { PORT, NODE_ENV } from "./utils/env.js";
+import { PORT, NODE_ENV, LINE_OA_ID, LINE_OA_NAME, LINE_OA_QR } from "./utils/env.js";
 import { fmtDateTime, fmtDate, fmtTime, fmt } from "./utils/time.js";
 import { UserError } from "@db/repos/errors.js";
 import { courseKey } from "@db/repos/courses.js";
@@ -58,6 +58,20 @@ app.use(importRouter);
 app.get("/", async (req, res) => {
   if (req.user?.isAdmin) return res.redirect("/meetings");
   res.render("pages/index", { title: "Home", user: req.user });
+});
+
+// Public "Get Started" page: how students join the LINE OA and register.
+app.get("/start", (req, res) => {
+  res.render("pages/start", {
+    title: "Get Started",
+    user: req.user,
+    oa: {
+      id: LINE_OA_ID,
+      name: LINE_OA_NAME,
+      qr: LINE_OA_QR,
+      addFriendUrl: `https://line.me/R/ti/p/${encodeURIComponent(LINE_OA_ID)}`,
+    },
+  });
 });
 
 app.get("/account", async (req, res) => {

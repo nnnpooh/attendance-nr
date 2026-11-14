@@ -444,3 +444,91 @@ tr.row-open td {
 .hero-content [role="button"] {
   padding-inline: 2rem;
 }
+
+/* ---------- Get Started page ---------- */
+.start-grid {
+  display: grid;
+  grid-template-columns: minmax(16rem, 2fr) 3fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+@media (max-width: 768px) {
+  .start-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.start-qr {
+  text-align: center;
+  margin-bottom: 0;
+}
+.start-qr img {
+  width: 100%;
+  max-width: 22rem;
+  height: auto;
+  background: #fff; /* keep the QR scannable on the dark theme */
+  border-radius: var(--pico-border-radius);
+  padding: 0.75rem;
+}
+.start-oa-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 1rem 0 0;
+}
+.start-oa-id {
+  font-size: 1.25rem;
+  color: var(--pico-muted-color);
+  margin-bottom: 1rem;
+}
+a.line-button {
+  --pico-background-color: #06c755; /* LINE green */
+  --pico-border-color: #06c755;
+  --pico-color: #fff;
+  width: auto;
+  padding-inline: 2rem;
+}
+.start-steps ol {
+  counter-reset: step;
+  padding: 0;
+  margin: 0;
+}
+.start-steps li {
+  list-style: none;
+  counter-increment: step;
+  position: relative;
+  padding-left: 3.75rem;
+  margin-bottom: 1.75rem;
+  font-size: 1.25rem;
+}
+.start-steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0.1rem;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  background: #06c755;
+  color: #fff;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+.start-steps li strong {
+  display: block;
+  font-size: 1.5rem;
+}
+.start-steps code {
+  font-size: 1.1rem;
+}
+.start-more {
+  color: var(--pico-muted-color);
+}
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+.hero-actions [role="button"] {
+  width: auto;
+}
