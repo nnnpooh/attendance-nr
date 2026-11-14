@@ -7,27 +7,47 @@ mixin countLine
             br
             small(class="pico-color-amber-400")=`+ ${count.others} from other sections / courses`
 
+mixin recentList
+    aside(class="recent")
+        h3 Recent check-ins
+        if recent.length
+            ol
+                each r in recent
+                    li(class={ fresh: r.fresh, other: !r.enrolled })
+                        span(class="recent-name")
+                            =`${r.firstname} ${r.lastname}`
+                            if !r.enrolled
+                                small(class="pico-color-amber-400")  · other section
+                        span(class="recent-time")=fmtTime(r.checkedAt)
+        else
+            p
+                em Waiting for the first check-in…
+
 div(class="code-box"
     hx-get=`/meetings/${meeting.id}/code`
     hx-trigger=(isOpen || notStarted) ? "every 1s" : false
     hx-swap="outerHTML")
-    if isOpen
-        p(class="code-hint") Send this code to the LINE OA
-        div(class="code-value")=code
-        progress(value=secondsLeft max=period)
-        p(class="code-meta")
-            span=`new code in ${secondsLeft}s`
-            |  ·
-            span=`closes in ${minutesLeft} min (${fmtTime(meeting.endsAt)})`
-        +countLine
-        div(class="code-actions")
-            button(class="outline" hx-post=`/meetings/${meeting.id}/extend` hx-vals='{"minutes":"5"}') +5 min
-            button(class="outline danger" hx-post=`/meetings/${meeting.id}/close` hx-confirm="Close check-in now?") Close now
-    else if notStarted
+    if notStarted
         p(class="code-hint")=`Check-in opens at ${fmtDateTime(meeting.startsAt)}`
     else
-        p(class="code-hint") Check-in closed
-        +countLine
-        div(class="code-actions")
-            button(class="outline" hx-post=`/meetings/${meeting.id}/extend` hx-vals='{"minutes":"5"}') Re-open 5 min
-            a(href=`/meetings/${meeting.id}` role="button") Who checked in
+        div(class="live-grid")
+            div(class="live-main")
+                if isOpen
+                    p(class="code-hint") Send this code to the LINE OA
+                    div(class="code-value")=code
+                    progress(value=secondsLeft max=period)
+                    p(class="code-meta")
+                        span=`new code in ${secondsLeft}s`
+                        |  ·
+                        span=`closes in ${minutesLeft} min (${fmtTime(meeting.endsAt)})`
+                    +countLine
+                    div(class="code-actions")
+                        button(class="outline" hx-post=`/meetings/${meeting.id}/extend` hx-vals='{"minutes":"5"}') +5 min
+                        button(class="outline danger" hx-post=`/meetings/${meeting.id}/close` hx-confirm="Close check-in now?") Close now
+                else
+                    p(class="code-hint") Check-in closed
+                    +countLine
+                    div(class="code-actions")
+                        button(class="outline" hx-post=`/meetings/${meeting.id}/extend` hx-vals='{"minutes":"5"}') Re-open 5 min
+                        a(href=`/meetings/${meeting.id}` role="button") Who checked in
+            +recentList

@@ -11,16 +11,16 @@ block content
         form(hx-post="/courses")
             div(class="grid")
                 label Course code
-                    input(name="code" placeholder="259103" required pattern="[A-Za-z0-9]+" autofocus)
+                    input(name="code" placeholder="123456" required pattern="[A-Za-z0-9]+" autofocus)
                 label Year (B.E.)
-                    input(name="year" type="number" placeholder="2568" required)
+                    input(name="year" type="number" placeholder="2569" required)
                 label Semester
                     select(name="semester")
                         option(value="1") 1
                         option(value="2") 2
                         option(value="3") 3 (summer)
             label Name (optional)
-                input(name="name" placeholder="Engineering Materials")
+                input(name="name" placeholder="Course Name")
             label Sections (optional, comma separated)
                 input(name="sections" placeholder="001, 002, 003")
             div(class="page-actions")

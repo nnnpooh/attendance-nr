@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { dbClient } from "@db/client.js";
 import {
   checkinsTable,
@@ -78,6 +78,36 @@ export async function listCheckinsForStudent(studentId: string, limit = 100) {
 }
 
 // ---------- One meeting ----------
+
+/**
+ * Latest check-ins of a meeting for the projector, newest first (by when they were
+ * recorded, so a back-dated manual check-in still shows up at the top).
+ * `enrolled` is false for students not in the meeting's section.
+ */
+export async function listRecentCheckins(meetingId: string, sectionId: string, limit = 12) {
+  return dbClient
+    .select({
+      id: checkinsTable.id,
+      checkedAt: checkinsTable.checkedAt,
+      createdAt: checkinsTable.createdAt,
+      method: checkinsTable.method,
+      firstname: studentsTable.firstname,
+      lastname: studentsTable.lastname,
+      enrolled: sql<number>`${enrollmentsTable.studentId} is not null`,
+    })
+    .from(checkinsTable)
+    .innerJoin(studentsTable, eq(studentsTable.id, checkinsTable.studentId))
+    .leftJoin(
+      enrollmentsTable,
+      and(
+        eq(enrollmentsTable.studentId, checkinsTable.studentId),
+        eq(enrollmentsTable.sectionId, sectionId)
+      )
+    )
+    .where(eq(checkinsTable.meetingId, meetingId))
+    .orderBy(desc(checkinsTable.createdAt))
+    .limit(limit);
+}
 
 /**
  * Attendance of one meeting:

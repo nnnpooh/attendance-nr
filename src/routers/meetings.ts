@@ -18,6 +18,7 @@ import {
   getCheckin,
   deleteCheckin,
   getMeetingAttendance,
+  listRecentCheckins,
 } from "@db/repos/checkins.js";
 import { UserError } from "@db/repos/errors.js";
 import { currentCode, CODE_PERIOD_SEC } from "@src/utils/totp.js";
@@ -104,9 +105,10 @@ router.get("/meetings/:id/code", async (req, res) => {
   const now = Date.now();
   const isOpen = meeting.startsAt.getTime() <= now && now < meeting.endsAt.getTime();
   const notStarted = now < meeting.startsAt.getTime();
-  const [count, roster] = await Promise.all([
+  const [count, roster, recent] = await Promise.all([
     countCheckins(meeting.id, meeting.sectionId),
     getSectionRoster(meeting.sectionId),
+    listRecentCheckins(meeting.id, meeting.sectionId),
   ]);
   const { code, secondsLeft } = currentCode(meeting.secret, now);
   res.render("components/codeBox", {
@@ -119,6 +121,8 @@ router.get("/meetings/:id/code", async (req, res) => {
     minutesLeft: Math.max(0, Math.ceil((meeting.endsAt.getTime() - now) / 60000)),
     count,
     enrolled: roster.length,
+    // Highlight anyone recorded in the last 10 seconds.
+    recent: recent.map((r) => ({ ...r, fresh: now - r.createdAt.getTime() < 10_000 })),
   });
 });
 

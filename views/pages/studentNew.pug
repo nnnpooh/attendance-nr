@@ -11,7 +11,7 @@ block content
         form(hx-post="/students")
             div(class="grid")
                 label Student ID
-                    input(name="id" required pattern="\\d{9}" placeholder="650612345" autofocus)
+                    input(name="id" required pattern="[67][0-9]{8}" title="9 digits starting with 6 or 7" placeholder="650612345" autofocus)
                 label First name
                     input(name="firstname" required)
                 label Last name

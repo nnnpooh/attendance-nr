@@ -26,12 +26,9 @@ export type Command =
   | { type: "bare-id" }
   | { type: "unknown" };
 
-const THAI_DIGITS = "๐๑๒๓๔๕๖๗๘๙";
-
 export function parseCommand(raw: string): Command {
-  // Normalise: Thai digits -> ASCII, full-width colon -> ':', trim.
+  // Normalise: full-width colon -> ':', trim.
   const text = raw
-    .replace(/[๐-๙]/g, (d) => String(THAI_DIGITS.indexOf(d)))
     .replace(/：/g, ":")
     .trim();
 

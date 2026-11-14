@@ -27,18 +27,18 @@ block content
             each s in course.sections
                 a(href=`/courses/${course.id}?section=${s.id}`
                     class=`chip ${s.id === section.id ? "active" : ""}`
-                    aria-current=(s.id === section.id ? "page" : null))=`sec ${s.number}`
+                    aria-current=(s.id === section.id ? "page" : null))=`Sec ${s.number}`
                     small=` (${s.studentCount})`
 
         div(class="page-actions")
             a(href=`/meetings/new?section=${section.id}` role="button")
                 i(class="fa-solid fa-play")
-                |  New check-in for sec #{section.number}
+                |  New Check-In for Sec #{section.number}
             a(href=`/sections/${section.id}/attendance.csv` role="button" class="secondary")
                 i(class="fa-solid fa-download")
                 |  Download CSV
 
-        h3=`sec ${section.number} · ${pivot.enrolledRows.length} student(s) · ${pivot.meetings.length} check-in(s)`
+        h3=`Secs ${section.number} · ${pivot.enrolledRows.length} Student(s) · ${pivot.meetings.length} Check-In(s)`
         if pivot.meetings.length
             +legend
         div(class="overflow-auto")
@@ -69,9 +69,8 @@ block content
                         tr
                             td(colspan=pivot.meetings.length + 3)
                                 em
-                                    | No students in this section. Add them on the
-                                    a(href="/import") Import
-                                    |  page or from a student's edit page.
+                                    | No students in this section.
+
 
         if pivot.otherRows.length
             h3(class="pico-color-amber-400")=`Checked in here but NOT enrolled in sec ${section.number} (${pivot.otherRows.length})`

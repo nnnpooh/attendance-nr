@@ -10,8 +10,12 @@ import {
 import { isUniqueViolation, UserError } from "./errors.js";
 import { courseKey } from "./courses.js";
 
-/** CMU student IDs are 9 digits. Change here if that ever differs. */
-export const STUDENT_ID_RE = /^\d{9}$/;
+/**
+ * CMU student IDs: 9 digits starting with 6 or 7 (entry years 25[67]x).
+ * Single source of truth for the web forms, CSV import and LINE registration.
+ */
+export const STUDENT_ID_RE = /^[67]\d{8}$/;
+export const STUDENT_ID_HINT = "9 digits starting with 6 or 7";
 
 export function validateStudentInput(input: {
   id: string;
@@ -22,7 +26,7 @@ export function validateStudentInput(input: {
   const firstname = String(input.firstname ?? "").trim();
   const lastname = String(input.lastname ?? "").trim();
   const errors: string[] = [];
-  if (!STUDENT_ID_RE.test(id)) errors.push(`invalid student ID "${id}" (need 9 digits)`);
+  if (!STUDENT_ID_RE.test(id)) errors.push(`invalid student ID "${id}" (need ${STUDENT_ID_HINT})`);
   if (!firstname) errors.push("missing firstname");
   if (!lastname) errors.push("missing lastname");
   return { value: { id, firstname, lastname }, errors };
