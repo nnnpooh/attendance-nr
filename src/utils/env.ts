@@ -8,7 +8,7 @@ if (!["production", "development"].includes(NODE_ENV)) {
   throw new Error("Invalid NODE_ENV");
 }
 
-export const PORT = process.env.BACKEND_PORT ?? "5001";
+export const PORT = process.env.PORT ?? "5001";
 
 export const SESSION_SECRET = process.env.SESSION_SECRET ?? "";
 if (!SESSION_SECRET) {
