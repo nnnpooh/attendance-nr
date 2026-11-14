@@ -5,14 +5,14 @@ export const msg = {
   help: () =>
     [
       "คำสั่ง / Commands",
-      "• REG:รหัสนักศึกษา — ลงทะเบียน (e.g. REG:650612345)",
-      "• รหัส 6 หลักบนจอ — เช็คชื่อ (e.g. 482913 or CODE:482913)",
-      "• INFO — ข้อมูลของฉัน / my info",
-      "• RECORD — ประวัติการเช็คชื่อ / my check-ins",
+      "• reg รหัสนักศึกษา — ลงทะเบียน (e.g. reg 690612345)",
+      "• รหัส 6 หลักบนจอ — เช็คชื่อ (e.g. 482913)",
+      "• info — ข้อมูลของฉัน / my info",
+      "• record — ประวัติการเช็คชื่อ / my check-ins",
     ].join("\n"),
 
   notRegistered: () =>
-    "คุณยังไม่ได้ลงทะเบียน กรุณาพิมพ์ REG:รหัสนักศึกษา\nYou are not registered yet. Send REG:<student ID>.",
+    "คุณยังไม่ได้ลงทะเบียน กรุณาพิมพ์ reg รหัสนักศึกษา\nYou are not registered yet. Send reg <student ID> (e.g. reg 690612345).",
 
   // Registration
   regOk: (id: string, name: string) =>
@@ -24,9 +24,9 @@ export const msg = {
   regTaken: (id: string) =>
     `รหัส ${id} ถูกลงทะเบียนกับบัญชี LINE อื่นแล้ว กรุณาติดต่ออาจารย์\n${id} is already linked to another LINE account. Please contact your instructor.`,
   regBadFormat: () =>
-    "รูปแบบไม่ถูกต้อง กรุณาพิมพ์ REG:รหัสนักศึกษา 9 หลัก\nFormat: REG:650612345",
+    "รูปแบบไม่ถูกต้อง กรุณาพิมพ์ reg รหัสนักศึกษา 9 หลัก\nFormat: reg 690612345",
   looksLikeId: () =>
-    "ถ้าต้องการลงทะเบียน กรุณาพิมพ์ REG: นำหน้ารหัส\nTo register, send REG:<student ID>.",
+    "ถ้าต้องการลงทะเบียน กรุณาพิมพ์ reg นำหน้ารหัส\nTo register, send reg <student ID> (e.g. reg 690612345).",
 
   // Check-in
   checkinOk: (courseCode: string, section: string, at: Date) =>
