@@ -19,7 +19,8 @@ export default function setupCommonMiddleWares(app: Express) {
   app.use(express.static("public"));
   app.use(morgan("dev", { immediate: true }));
   const scriptSources = ["'self'", "https://unpkg.com"];
-  const styleSources = ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net"];
+  const styleSources = ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "fonts.googleapis.com"];
+  const fontSources = ["'self'", "fonts.gstatic.com", "data:"];
   const connectSources = ["'self'"];
   app.use(
     helmet({
@@ -28,6 +29,7 @@ export default function setupCommonMiddleWares(app: Express) {
           scriptSrc: scriptSources,
           scriptSrcElem: scriptSources,
           styleSrc: styleSources,
+          fontSrc: fontSources,
           connectSrc: connectSources,
         },
         reportOnly: true,

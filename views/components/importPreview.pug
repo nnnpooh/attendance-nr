@@ -1,14 +1,8 @@
 - const s = analysis.summary
 hr
 h3 Preview
-p
-    | #{s.total} row(s):
-    strong(class="pico-color-green-400")=`${s.enroll} to enroll`
-    | ,
-    span=`${s.skip} skipped`
-    | ,
-    strong(class=s.error ? "pico-color-red-400" : "")=`${s.error} error(s)`
-    | . Directory: #{s.newStudents} new, #{s.updatedStudents} updated.
+//- One line with inline tags, so Pug keeps the spaces after the commas.
+p #{s.total} row(s): #[strong.pico-color-green-400 #{s.enroll} to enroll], #{s.skip} skipped, #[strong(class=s.error ? "pico-color-red-400" : "") #{s.error} error(s)]. Directory: #{s.newStudents} new, #{s.updatedStudents} updated.
 if s.error
     p(class="pico-color-red-400")
         small Rows with errors will NOT be imported. Fix the file and preview again, or import the valid rows now.

@@ -1,3 +1,9 @@
+/* Noto Sans everywhere: Latin glyphs come from "Noto Sans", Thai glyphs fall
+   through to "Noto Sans Thai" (same design family). Loaded in head.pug. */
+:root {
+  --pico-font-family: "Noto Sans", "Noto Sans Thai", system-ui, sans-serif;
+}
+
 body {
   color-scheme: dark;
 }
