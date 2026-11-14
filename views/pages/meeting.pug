@@ -1,0 +1,77 @@
+extends ../layouts/main.pug
+
+block content
+    - const open = meeting.startsAt <= now && now < meeting.endsAt
+    nav(aria-label="breadcrumb")
+        ul
+            li
+                a(href="/meetings") Check-Ins
+            li=`${courseKey} sec ${meeting.section.number} · ${fmtDate(meeting.startsAt)}`
+    hgroup
+        h1=`${courseKey} · sec ${meeting.section.number}`
+        p
+            = `${fmtDate(meeting.startsAt)}, ${fmtTime(meeting.startsAt)}–${fmtTime(meeting.endsAt)} · `
+            +meetingStatus(meeting, now)
+
+    div(class="page-actions")
+        a(href=`/meetings/${meeting.id}/display` role="button" class=open ? "" : "secondary")
+            i(class="fa-solid fa-display")
+            |  Show code
+        a(href=`/courses/${meeting.section.courseId}?section=${meeting.sectionId}` role="button" class="secondary")
+            i(class="fa-solid fa-table")
+            |  Attendance grid
+        button(class="outline danger" hx-delete=`/meetings/${meeting.id}`
+            hx-confirm=`Delete this check-in and all its records?`)
+            i(class="fa-solid fa-trash-can")
+            |  Delete
+
+    h3=`Present ${present} / ${enrolledRows.length}`
+    +legend
+    if enrolledRows.length
+        div(class="overflow-auto")
+            table(class="pivot striped")
+                thead
+                    tr
+                        th ID
+                        th Name
+                        th Check-in
+                tbody
+                    each r in enrolledRows
+                        tr
+                            td
+                                a(href=`/students/${r.student.id}`)=r.student.id
+                            td(class="name")=`${r.student.firstname} ${r.student.lastname}`
+                            +checkinCell(r.checkin, meeting.id, r.student.id, true)
+    else
+        p
+            em No students enrolled in this section.
+
+    if otherRows.length
+        h3(class="pico-color-amber-400")=`Checked in but NOT enrolled in sec ${meeting.section.number} (${otherRows.length})`
+        div(class="overflow-auto")
+            table(class="pivot striped")
+                thead
+                    tr
+                        th ID
+                        th Name
+                        th Enrolled in
+                        th Check-in
+                        th
+                tbody
+                    each r in otherRows
+                        tr
+                            td
+                                a(href=`/students/${r.student.id}`)=r.student.id
+                            td(class="name")=`${r.student.firstname} ${r.student.lastname}`
+                            td
+                                if r.enrolledSection
+                                    =`sec ${r.enrolledSection.number}`
+                                else
+                                    em not in #{courseKey}
+                            +checkinCell(r.checkin, meeting.id, r.student.id, false)
+                            td
+                                button(class="outline small"
+                                    hx-post=`/sections/${meeting.sectionId}/enroll`
+                                    hx-vals=JSON.stringify({ studentId: r.student.id })
+                                    hx-confirm=(r.enrolledSection ? `Move ${r.student.id} from sec ${r.enrolledSection.number} to sec ${meeting.section.number}?` : `Enroll ${r.student.id} in sec ${meeting.section.number}?`))
+                                    = r.enrolledSection ? "Move here" : "Enroll here"

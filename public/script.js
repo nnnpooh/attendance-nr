@@ -33,3 +33,8 @@ document.addEventListener("click", function (event) {
 document.addEventListener("keydown", function (event) {
   if (event.key === "Escape") document.querySelector("#modal dialog")?.remove();
 });
+
+// <select data-autosubmit> submits its form on change (e.g. Check-Ins course filter).
+document.addEventListener("change", function (event) {
+  if (event.target.matches("select[data-autosubmit]")) event.target.form?.submit();
+});

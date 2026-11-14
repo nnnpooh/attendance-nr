@@ -1,0 +1,28 @@
+extends ../layouts/main.pug
+
+block content
+    nav(aria-label="breadcrumb")
+        ul
+            li
+                a(href="/courses") Courses
+            li New
+    h1 New course
+    article
+        form(hx-post="/courses")
+            div(class="grid")
+                label Course code
+                    input(name="code" placeholder="259103" required pattern="[A-Za-z0-9]+" autofocus)
+                label Year (B.E.)
+                    input(name="year" type="number" placeholder="2568" required)
+                label Semester
+                    select(name="semester")
+                        option(value="1") 1
+                        option(value="2") 2
+                        option(value="3") 3 (summer)
+            label Name (optional)
+                input(name="name" placeholder="Engineering Materials")
+            label Sections (optional, comma separated)
+                input(name="sections" placeholder="001, 002, 003")
+            div(class="page-actions")
+                button(type="submit") Create
+                a(href="/courses" role="button" class="secondary") Cancel

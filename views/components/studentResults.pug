@@ -1,3 +1,4 @@
+//- Rendered on its own for htmx live search, so no layout mixins here.
 p
     small=`${rows.length < total ? `Showing ${rows.length} of ${total}` : `${total}`} student(s)`
 if rows.length
@@ -8,6 +9,7 @@ if rows.length
                     th ID
                     th Name
                     th LINE
+                    th
             tbody
                 each s in rows
                     tr
@@ -19,3 +21,9 @@ if rows.length
                                 i(class="fa-solid fa-check pico-color-green-400" title="LINE linked")
                             else
                                 small —
+                        td(class="row-actions")
+                            a(href=`/students/${s.id}/edit` title="Edit" class="icon-action")
+                                i(class="fa-solid fa-pen")
+                            a(href="#" title="Delete" class="icon-action danger" hx-delete=`/students/${s.id}`
+                                hx-confirm=`Delete ${s.id} ${s.firstname} ${s.lastname} with all enrollments, LINE link and check-ins?`)
+                                i(class="fa-solid fa-trash-can")

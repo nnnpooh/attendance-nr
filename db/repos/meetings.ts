@@ -1,6 +1,13 @@
 import { and, asc, desc, eq, gt, lte, sql } from "drizzle-orm";
 import { dbClient } from "@db/client.js";
-import { meetingsTable, checkinsTable, enrollmentsTable } from "@db/schema.js";
+import {
+  meetingsTable,
+  checkinsTable,
+  enrollmentsTable,
+  sectionsTable,
+  coursesTable,
+} from "@db/schema.js";
+import { courseKey } from "./courses.js";
 import { newSecret } from "@src/utils/totp.js";
 import { UserError } from "./errors.js";
 
@@ -41,6 +48,55 @@ export async function listMeetingsForSection(sectionId: string) {
     .where(eq(meetingsTable.sectionId, sectionId))
     .orderBy(desc(meetingsTable.startsAt));
   return rows;
+}
+
+/** All meetings (newest first) with attendance counts, optionally for one course. */
+export async function listMeetings(opts: { courseId?: string; limit?: number } = {}) {
+  const rows = await dbClient
+    .select({
+      id: meetingsTable.id,
+      startsAt: meetingsTable.startsAt,
+      endsAt: meetingsTable.endsAt,
+      sectionId: sectionsTable.id,
+      sectionNumber: sectionsTable.number,
+      courseId: coursesTable.id,
+      code: coursesTable.code,
+      name: coursesTable.name,
+      year: coursesTable.year,
+      semester: coursesTable.semester,
+      checkinCount: sql<number>`(select count(*) from ${checkinsTable} where ${checkinsTable.meetingId} = ${meetingsTable.id})`,
+      presentCount: sql<number>`(select count(*) from ${checkinsTable} c inner join ${enrollmentsTable} e on e.student_id = c.student_id and e.section_id = ${meetingsTable.sectionId} where c.meeting_id = ${meetingsTable.id})`,
+      enrolledCount: sql<number>`(select count(*) from ${enrollmentsTable} where ${enrollmentsTable.sectionId} = ${meetingsTable.sectionId})`,
+    })
+    .from(meetingsTable)
+    .innerJoin(sectionsTable, eq(sectionsTable.id, meetingsTable.sectionId))
+    .innerJoin(coursesTable, eq(coursesTable.id, sectionsTable.courseId))
+    .where(opts.courseId ? eq(coursesTable.id, opts.courseId) : undefined)
+    .orderBy(desc(meetingsTable.startsAt))
+    .limit(opts.limit ?? 300);
+  return rows.map((r) => ({
+    ...r,
+    key: courseKey(r),
+    otherCount: r.checkinCount - r.presentCount,
+  }));
+}
+
+/** Section of the most recently created meeting (pre-selected in "New check-in"). */
+export async function lastUsedSectionId() {
+  const m = await dbClient.query.meetingsTable.findFirst({
+    orderBy: [desc(meetingsTable.createdAt)],
+  });
+  return m?.sectionId;
+}
+
+export async function findOpenMeetingForSection(sectionId: string, now = new Date()) {
+  return dbClient.query.meetingsTable.findFirst({
+    where: and(
+      eq(meetingsTable.sectionId, sectionId),
+      lte(meetingsTable.startsAt, now),
+      gt(meetingsTable.endsAt, now)
+    ),
+  });
 }
 
 /** Meetings currently accepting check-ins (startsAt <= now < endsAt). */

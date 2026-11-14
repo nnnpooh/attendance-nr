@@ -58,6 +58,7 @@ export async function listCheckinsForStudent(studentId: string, limit = 100) {
       checkedAt: checkinsTable.checkedAt,
       method: checkinsTable.method,
       reason: checkinsTable.reason,
+      meetingId: meetingsTable.id,
       meetingStartsAt: meetingsTable.startsAt,
       sectionId: sectionsTable.id,
       section: sectionsTable.number,
@@ -74,6 +75,73 @@ export async function listCheckinsForStudent(studentId: string, limit = 100) {
     .orderBy(desc(checkinsTable.checkedAt))
     .limit(limit);
   return rows.map((r) => ({ ...r, key: courseKey(r) }));
+}
+
+// ---------- One meeting ----------
+
+/**
+ * Attendance of one meeting:
+ *  - enrolledRows: every student enrolled in the meeting's section, with their check-in (or null)
+ *  - otherRows:    students who checked in but are not enrolled in that section
+ */
+export async function getMeetingAttendance(meeting: {
+  id: string;
+  sectionId: string;
+  section: { courseId: string };
+}) {
+  const [enrolled, checkins] = await Promise.all([
+    dbClient
+      .select({
+        id: studentsTable.id,
+        firstname: studentsTable.firstname,
+        lastname: studentsTable.lastname,
+      })
+      .from(enrollmentsTable)
+      .innerJoin(studentsTable, eq(studentsTable.id, enrollmentsTable.studentId))
+      .where(eq(enrollmentsTable.sectionId, meeting.sectionId))
+      .orderBy(asc(studentsTable.id)),
+    dbClient.select().from(checkinsTable).where(eq(checkinsTable.meetingId, meeting.id)),
+  ]);
+  const byStudent = new Map(checkins.map((c) => [c.studentId, c]));
+  const enrolledSet = new Set(enrolled.map((s) => s.id));
+  const enrolledRows = enrolled.map((student) => ({
+    student,
+    checkin: byStudent.get(student.id) ?? null,
+  }));
+
+  const otherIds = checkins.map((c) => c.studentId).filter((id) => !enrolledSet.has(id));
+  const others = otherIds.length
+    ? await dbClient
+        .select({
+          id: studentsTable.id,
+          firstname: studentsTable.firstname,
+          lastname: studentsTable.lastname,
+          sectionId: sectionsTable.id,
+          sectionNumber: sectionsTable.number,
+        })
+        .from(studentsTable)
+        .leftJoin(
+          enrollmentsTable,
+          and(
+            eq(enrollmentsTable.studentId, studentsTable.id),
+            eq(enrollmentsTable.courseId, meeting.section.courseId)
+          )
+        )
+        .leftJoin(sectionsTable, eq(sectionsTable.id, enrollmentsTable.sectionId))
+        .where(inArray(studentsTable.id, otherIds))
+        .orderBy(asc(studentsTable.id))
+    : [];
+  const otherRows = others.map((s) => ({
+    student: { id: s.id, firstname: s.firstname, lastname: s.lastname },
+    checkin: byStudent.get(s.id)!,
+    enrolledSection:
+      s.sectionId && s.sectionNumber ? { id: s.sectionId, number: s.sectionNumber } : null,
+  }));
+  return {
+    enrolledRows,
+    otherRows,
+    present: enrolledRows.filter((r) => r.checkin).length,
+  };
 }
 
 // ---------- Pivot ----------

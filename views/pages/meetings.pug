@@ -1,0 +1,52 @@
+extends ../layouts/main.pug
+
+block content
+    div(class="page-head")
+        h1 Check-Ins
+        a(href="/meetings/new" role="button")
+            i(class="fa-solid fa-plus")
+            |  New Check-In
+
+    form(method="get" action="/meetings" class="filter")
+        select(name="course" data-autosubmit aria-label="Filter by course")
+            option(value="") All courses
+            each c in courses
+                option(value=c.id selected=(c.id === courseId))=(c.name ? `${c.key} — ${c.name}` : c.key)
+
+    if meetings.length
+        div(class="overflow-auto")
+            table(class="striped")
+                thead
+                    tr
+                        th Date
+                        th Course
+                        th Sec
+                        th Time
+                        th Present
+                        th Status
+                        th
+                tbody
+                    each m in meetings
+                        - const open = m.startsAt <= now && now < m.endsAt
+                        tr(class=open ? "row-open" : "")
+                            td
+                                a(href=`/meetings/${m.id}`)=fmtDate(m.startsAt)
+                            td
+                                span(title=m.name)=m.key
+                            td=m.sectionNumber
+                            td=`${fmtTime(m.startsAt)}–${fmtTime(m.endsAt)}`
+                            td
+                                = `${m.presentCount} / ${m.enrolledCount}`
+                                if m.otherCount
+                                    small(class="pico-color-amber-400" title="Checked in but not enrolled in this section")=` +${m.otherCount}`
+                            td
+                                +meetingStatus(m, now)
+                            td(class="row-actions")
+                                a(href=`/meetings/${m.id}/display` title="Show code (projector)" class="icon-action")
+                                    i(class="fa-solid fa-display")
+                                a(href="#" title="Delete" class="icon-action danger" hx-delete=`/meetings/${m.id}`
+                                    hx-confirm=`Delete the ${m.key} sec ${m.sectionNumber} check-in of ${fmtDateTime(m.startsAt)} and its ${m.checkinCount} check-in(s)?`)
+                                    i(class="fa-solid fa-trash-can")
+    else
+        article
+            em No check-ins yet.

@@ -1,0 +1,58 @@
+//- Shared mixins, included once by layouts/main.pug.
+
+//- <select name="sectionId"> grouped by course.
+mixin sectionSelect(courses, selected, emptyLabel)
+    select(name="sectionId" required=!emptyLabel)
+        if emptyLabel
+            option(value="")=emptyLabel
+        else
+            option(value="" disabled selected=!selected) Choose course and section…
+        each c in courses
+            optgroup(label=(c.name ? `${c.key} — ${c.name}` : c.key))
+                each s in c.sections
+                    option(value=s.id selected=(s.id === selected))=`${c.code} sec ${s.number} (${s.studentCount} students)`
+
+//- Open / Closed badge for a meeting.
+mixin meetingStatus(m, now)
+    if m.startsAt <= now && now < m.endsAt
+        mark Open
+    else if now < m.startsAt
+        span Scheduled
+    else
+        small Closed
+
+//- One attendance cell. Present -> opens check-in dialog; absent+clickable -> manual check-in.
+mixin checkinCell(checkin, meetingId, studentId, clickable)
+    if checkin
+        td(class=`cell present ${checkin.method === "MANUAL" ? "manual" : ""}`
+            title=(checkin.method === "MANUAL" ? `Manual: ${checkin.reason || ""}` : `LINE ${fmtDateTime(checkin.checkedAt)}`)
+            hx-get=`/checkins/${checkin.id}` hx-target="#modal")
+            if checkin.method === "MANUAL"
+                i(class="fa-solid fa-pen-to-square")
+                |
+            = fmtTime(checkin.checkedAt)
+    else if clickable
+        td(class="cell absent clickable" title="Absent — click to check in manually"
+            hx-get=`/meetings/${meetingId}/manual?studentId=${studentId}` hx-target="#modal") ·
+    else
+        td(class="cell absent")
+
+mixin legend
+    p(class="legend-line")
+        span(class="legend present") 10:02
+        |  LINE
+        span(class="legend present manual")
+            i(class="fa-solid fa-pen-to-square")
+            |  10:02
+        |  Manual
+        span(class="legend absent") ·
+        |  Absent
+
+//- Pen + trash icons at the end of a table row. Extra attributes go to the trash link.
+mixin rowActions(editHref)
+    td(class="row-actions")
+        if editHref
+            a(href=editHref title="Edit" class="icon-action")
+                i(class="fa-solid fa-pen")
+        a(href="#" title="Delete" class="icon-action danger")&attributes(attributes)
+            i(class="fa-solid fa-trash-can")

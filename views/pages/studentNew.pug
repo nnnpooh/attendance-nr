@@ -1,0 +1,23 @@
+extends ../layouts/main.pug
+
+block content
+    nav(aria-label="breadcrumb")
+        ul
+            li
+                a(href="/students") Students
+            li New
+    h1 New student
+    article
+        form(hx-post="/students")
+            div(class="grid")
+                label Student ID
+                    input(name="id" required pattern="\\d{9}" placeholder="650612345" autofocus)
+                label First name
+                    input(name="firstname" required)
+                label Last name
+                    input(name="lastname" required)
+            label Enroll in (optional)
+                +sectionSelect(courses, null, "— not now —")
+            div(class="page-actions")
+                button(type="submit") Create
+                a(href="/students" role="button" class="secondary") Cancel

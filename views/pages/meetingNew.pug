@@ -1,0 +1,21 @@
+extends ../layouts/main.pug
+
+block content
+    h1 New Check-In
+    if courses.length
+        article
+            form(hx-post="/meetings")
+                label Course and section
+                    +sectionSelect(courses, selected)
+                label Open for (minutes)
+                    input(name="minutes" type="number" min="1" max="360" value="15" required)
+                    small You can extend or close it early from the code screen.
+                button(type="submit")
+                    i(class="fa-solid fa-play")
+                    |  Start now
+    else
+        article
+            em
+                | No course has a section yet — 
+                a(href="/courses/new") create a course
+                |  first.

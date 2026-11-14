@@ -1,0 +1,79 @@
+extends ../layouts/main.pug
+
+block content
+    nav(aria-label="breadcrumb")
+        ul
+            li
+                a(href="/students") Students
+            li
+                a(href=`/students/${student.id}`)=student.id
+            li Edit
+    h1=`Edit ${student.id}`
+
+    article
+        header
+            strong Name
+        form(hx-post=`/students/${student.id}`)
+            div(class="grid")
+                label First name
+                    input(name="firstname" value=student.firstname required)
+                label Last name
+                    input(name="lastname" value=student.lastname required)
+            div(class="page-actions")
+                button(type="submit") Save
+                a(href=`/students/${student.id}` role="button" class="secondary") Cancel
+
+    article
+        header
+            strong Courses
+        if enrollments.length
+            table
+                thead
+                    tr
+                        th Course
+                        th Section
+                        th
+                tbody
+                    each e in enrollments
+                        tr
+                            td=e.key
+                            td
+                                if e.course.sections.length > 1
+                                    form(hx-post=`/students/${student.id}/move` hx-trigger="change"
+                                        hx-confirm=`Move ${student.id} to the selected section of ${e.key}?`)
+                                        select(name="sectionId" aria-label="Section")
+                                            each s in e.course.sections
+                                                option(value=s.id selected=(s.id === e.sectionId))=`sec ${s.number}`
+                                else
+                                    =`sec ${e.section.number}`
+                            td(class="row-actions")
+                                a(href="#" title="Remove from course" class="icon-action danger"
+                                    hx-delete=`/students/${student.id}/enrollments/${e.courseId}`
+                                    hx-confirm=`Remove from ${e.key}? (Check-ins are kept.)`)
+                                    i(class="fa-solid fa-trash-can")
+        else
+            p
+                em Not enrolled in any course.
+        if otherCourses.length
+            form(hx-post=`/students/${student.id}/enroll`)
+                fieldset(role="group")
+                    +sectionSelect(otherCourses, null)
+                    button(type="submit" class="nowrap") Add to course
+
+    article
+        header
+            strong LINE
+        if student.lineAccount
+            p
+                i(class="fa-solid fa-check pico-color-green-400")
+                = ` Linked${student.lineAccount.displayName ? ` to "${student.lineAccount.displayName}"` : ""} on ${fmtDateTime(student.lineAccount.linkedAt)}`
+            button(class="outline danger" hx-delete=`/students/${student.id}/line`
+                hx-confirm="Unlink this LINE account? The student can then register again with REG:<id> (e.g. new phone).") Unlink LINE
+        else
+            p
+                em Not registered on LINE yet (student sends REG:#{student.id}).
+
+    details
+        summary Danger zone
+        button(class="danger" hx-delete=`/students/${student.id}`
+            hx-confirm=`Delete ${student.id} with all enrollments, LINE link and check-ins?`) Delete student

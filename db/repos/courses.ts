@@ -4,6 +4,7 @@ import {
   coursesTable,
   sectionsTable,
   enrollmentsTable,
+  meetingsTable,
   type Course,
 } from "@db/schema.js";
 import { isUniqueViolation, UserError } from "./errors.js";
@@ -34,15 +35,34 @@ export async function listCoursesWithSections() {
     })
     .from(enrollmentsTable)
     .groupBy(enrollmentsTable.sectionId);
+  const meetingCounts = await dbClient
+    .select({
+      sectionId: meetingsTable.sectionId,
+      n: sql<number>`count(*)`,
+    })
+    .from(meetingsTable)
+    .groupBy(meetingsTable.sectionId);
   const countMap = new Map(counts.map((c) => [c.sectionId, c.n]));
-  return courses.map((c) => ({
-    ...c,
-    key: courseKey(c),
-    sections: c.sections.map((s) => ({
+  const meetingMap = new Map(meetingCounts.map((c) => [c.sectionId, c.n]));
+  return courses.map((c) => {
+    const sections = c.sections.map((s) => ({
       ...s,
       studentCount: countMap.get(s.id) ?? 0,
-    })),
-  }));
+      meetingCount: meetingMap.get(s.id) ?? 0,
+    }));
+    return {
+      ...c,
+      key: courseKey(c),
+      sections,
+      studentCount: sections.reduce((n, s) => n + s.studentCount, 0),
+      meetingCount: sections.reduce((n, s) => n + s.meetingCount, 0),
+    };
+  });
+}
+
+export async function getCourseWithCounts(id: string) {
+  const all = await listCoursesWithSections();
+  return all.find((c) => c.id === id);
 }
 
 export async function getCourse(id: string) {

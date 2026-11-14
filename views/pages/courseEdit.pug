@@ -1,0 +1,63 @@
+extends ../layouts/main.pug
+
+block content
+    nav(aria-label="breadcrumb")
+        ul
+            li
+                a(href="/courses") Courses
+            li
+                a(href=`/courses/${course.id}`)=course.key
+            li Edit
+    h1=`Edit ${course.key}`
+
+    article
+        header
+            strong Details
+        form(hx-post=`/courses/${course.id}`)
+            div(class="grid")
+                label Course code
+                    input(name="code" value=course.code required pattern="[A-Za-z0-9]+")
+                label Year (B.E.)
+                    input(name="year" type="number" value=course.year required)
+                label Semester
+                    select(name="semester")
+                        each n in [1, 2, 3]
+                            option(value=n selected=(course.semester === n))=n
+            label Name
+                input(name="name" value=course.name)
+            div(class="page-actions")
+                button(type="submit") Save
+                a(href="/courses" role="button" class="secondary") Cancel
+
+    article
+        header
+            strong Sections
+        if course.sections.length
+            table
+                thead
+                    tr
+                        th Section
+                        th Students
+                        th Check-ins
+                        th
+                tbody
+                    each s in course.sections
+                        tr
+                            td=s.number
+                            td=s.studentCount
+                            td=s.meetingCount
+                            +rowActions(null)(
+                                hx-delete=`/sections/${s.id}`
+                                hx-confirm=`Delete sec ${s.number} with its ${s.studentCount} enrollment(s) and ${s.meetingCount} check-in(s)?`)
+        else
+            p
+                em No sections yet.
+        form(hx-post=`/courses/${course.id}/sections`)
+            fieldset(role="group")
+                input(name="number" placeholder="Section number(s), e.g. 004 or 004, 005" required)
+                button(type="submit") Add section
+
+    details
+        summary Danger zone
+        button(class="danger" hx-delete=`/courses/${course.id}`
+            hx-prompt=`Delete ${course.key} with ALL sections, enrollments and check-ins? This cannot be undone.\n\nType the course code (${course.code}) to confirm:`) Delete course

@@ -1,3 +1,5 @@
+- const p = typeof path === "string" ? path : ""
+- const at = (prefix) => (p === prefix || p.startsWith(prefix + "/")) ? "page" : null
 header
     nav
         ul
@@ -7,11 +9,13 @@ header
         if user && user.isAdmin
             ul
                 li
-                    a(href="/courses") Courses
+                    a(href="/meetings" aria-current=at("/meetings")) Check-Ins
                 li
-                    a(href="/students") Students
+                    a(href="/students" aria-current=at("/students")) Students
                 li
-                    a(href="/import") Import
+                    a(href="/courses" aria-current=at("/courses")) Courses
+                li
+                    a(href="/import" aria-current=at("/import")) Import
         if !user
             ul
                 li
@@ -20,7 +24,8 @@ header
         else
             ul
                 li
-                    em=user.name
+                    a(href="/account" title="Account & sessions")
+                        em=user.name
                 li
-                    a(href="#" class="custom-icon" hx-post="/logout")
+                    a(href="#" class="custom-icon" hx-post="/logout" title="Log out")
                         i(class="fa-solid fa-xl fa-right-from-bracket pico-color-red-400")

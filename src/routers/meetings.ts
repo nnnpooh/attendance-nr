@@ -2,24 +2,90 @@ import express from "express";
 import { requireAdmin } from "@src/auth/guards.js";
 import {
   getMeeting,
+  createMeeting,
   closeMeeting,
   extendMeeting,
   deleteMeeting,
   countCheckins,
+  listMeetings,
+  lastUsedSectionId,
+  findOpenMeetingForSection,
 } from "@db/repos/meetings.js";
-import { courseKey } from "@db/repos/courses.js";
+import { courseKey, getSection, listCoursesWithSections } from "@db/repos/courses.js";
 import { getStudent, getSectionRoster } from "@db/repos/students.js";
-import { insertCheckin, getCheckin, deleteCheckin } from "@db/repos/checkins.js";
+import {
+  insertCheckin,
+  getCheckin,
+  deleteCheckin,
+  getMeetingAttendance,
+} from "@db/repos/checkins.js";
 import { UserError } from "@db/repos/errors.js";
 import { currentCode, CODE_PERIOD_SEC } from "@src/utils/totp.js";
 import { fromLocalInput, toLocalInput } from "@src/utils/time.js";
-import { hxRefresh, hxRedirect, notFound, str } from "./helpers.js";
+import { hxAfterDelete, hxRefresh, hxRedirect, notFound, str } from "./helpers.js";
 
 const router = express.Router();
 router.use(["/meetings", "/checkins"], requireAdmin);
 
-// ---------- projector page ----------
+// ---------- list ("Check-Ins") ----------
 
+router.get("/meetings", async (req, res) => {
+  const courseId = str(req.query.course) || undefined;
+  const [meetings, courses] = await Promise.all([
+    listMeetings({ courseId }),
+    listCoursesWithSections(),
+  ]);
+  res.render("pages/meetings", {
+    title: "Check-Ins",
+    user: req.user,
+    meetings,
+    courses,
+    courseId,
+    now: new Date(),
+  });
+});
+
+// ---------- new check-in (always starts now) ----------
+
+router.get("/meetings/new", async (req, res) => {
+  const courses = (await listCoursesWithSections()).filter((c) => c.sections.length);
+  const selected = str(req.query.section) || (await lastUsedSectionId());
+  res.render("pages/meetingNew", {
+    title: "New Check-In",
+    user: req.user,
+    courses,
+    selected,
+  });
+});
+
+router.post("/meetings", async (req, res) => {
+  const section = await getSection(str(req.body.sectionId));
+  if (!section) throw new UserError("Please choose a course and section.");
+  // Already running for this section? Just show it instead of opening a second one.
+  const open = await findOpenMeetingForSection(section.id);
+  if (open) return hxRedirect(res, `/meetings/${open.id}/display`);
+  const minutes = Number(str(req.body.minutes) || "15");
+  const m = await createMeeting(section.id, new Date(), minutes, req.user?.id ?? null);
+  hxRedirect(res, `/meetings/${m.id}/display`);
+});
+
+// ---------- one meeting ----------
+
+router.get("/meetings/:id", async (req, res) => {
+  const meeting = await getMeeting(req.params.id);
+  if (!meeting) return notFound(res, "Meeting not found");
+  const attendance = await getMeetingAttendance(meeting);
+  res.render("pages/meeting", {
+    title: `${courseKey(meeting.section.course)} sec ${meeting.section.number}`,
+    user: req.user,
+    meeting,
+    courseKey: courseKey(meeting.section.course),
+    ...attendance,
+    now: new Date(),
+  });
+});
+
+// Projector page.
 router.get("/meetings/:id/display", async (req, res) => {
   const meeting = await getMeeting(req.params.id);
   if (!meeting) return notFound(res, "Meeting not found");
@@ -72,7 +138,7 @@ router.delete("/meetings/:id", async (req, res) => {
   const meeting = await getMeeting(req.params.id);
   if (!meeting) return notFound(res, "Meeting not found");
   await deleteMeeting(meeting.id);
-  hxRedirect(res, `/sections/${meeting.sectionId}`);
+  hxAfterDelete(req, res, `/meetings/${meeting.id}`, "/meetings");
 });
 
 // ---------- manual check-in ----------

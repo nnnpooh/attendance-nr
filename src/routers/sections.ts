@@ -1,72 +1,32 @@
 import express from "express";
 import { requireAdmin } from "@src/auth/guards.js";
 import { getSection, deleteSection } from "@db/repos/courses.js";
-import {
-  getSectionRoster,
-  getStudent,
-  upsertStudent,
-  enrollStudent,
-  unenroll,
-} from "@db/repos/students.js";
-import { createMeeting, listMeetingsForSection } from "@db/repos/meetings.js";
+import { enrollStudent } from "@db/repos/students.js";
 import { getSectionPivot } from "@db/repos/checkins.js";
-import { UserError } from "@db/repos/errors.js";
-import { fromLocalInput, fmt } from "@src/utils/time.js";
-import { hxRedirect, hxRefresh, notFound, str } from "./helpers.js";
+import { fmt } from "@src/utils/time.js";
+import { hxRefresh, notFound, str } from "./helpers.js";
 
 const router = express.Router();
 router.use("/sections", requireAdmin);
 
-router.get("/sections/:id", async (req, res) => {
-  const section = await getSection(req.params.id);
+// Sections no longer have their own page: they live as a tab on the course page.
+const toCourseTab = async (req: express.Request, res: express.Response) => {
+  const section = await getSection(String(req.params.id));
   if (!section) return notFound(res, "Section not found");
-  const [roster, meetings] = await Promise.all([
-    getSectionRoster(section.id),
-    listMeetingsForSection(section.id),
-  ]);
-  res.render("pages/section", {
-    title: `${section.courseKey} sec ${section.number}`,
-    user: req.user,
-    section,
-    roster,
-    meetings,
-    now: new Date(),
-  });
-});
+  res.redirect(`/courses/${section.courseId}?section=${section.id}`);
+};
+router.get("/sections/:id", toCourseTab);
+router.get("/sections/:id/attendance", toCourseTab);
 
+// From the course edit page.
 router.delete("/sections/:id", async (req, res) => {
   const section = await getSection(req.params.id);
   if (!section) return notFound(res, "Section not found");
   await deleteSection(section.id);
-  hxRedirect(res, `/courses/${section.courseId}`);
-});
-
-// Add one student via web form. Names are only required for a new student;
-// if given for an existing one they update the directory.
-router.post("/sections/:id/students", async (req, res) => {
-  const section = await getSection(req.params.id);
-  if (!section) return notFound(res, "Section not found");
-  const id = str(req.body.id);
-  const firstname = str(req.body.firstname);
-  const lastname = str(req.body.lastname);
-  const existing = await getStudent(id);
-  if (!existing || firstname || lastname) {
-    await upsertStudent({
-      id,
-      firstname: firstname || existing?.firstname || "",
-      lastname: lastname || existing?.lastname || "",
-    });
-  }
-  const r = await enrollStudent(id, section.id, { move: req.body.move === "on" });
-  if (r.status === "conflict")
-    throw new UserError(
-      `${id} is already in section ${r.otherSection} of this course. Tick "move" to move them here.`
-    );
-  if (r.status === "already") throw new UserError(`${id} is already in this section.`);
   hxRefresh(res);
 });
 
-// "Enroll / move here" button from the attendance pivot.
+// "Enroll / move here" button from the attendance grid.
 router.post("/sections/:id/enroll", async (req, res) => {
   const section = await getSection(req.params.id);
   if (!section) return notFound(res, "Section not found");
@@ -74,40 +34,7 @@ router.post("/sections/:id/enroll", async (req, res) => {
   hxRefresh(res);
 });
 
-router.delete("/sections/:id/students/:studentId", async (req, res) => {
-  const section = await getSection(req.params.id);
-  if (!section) return notFound(res, "Section not found");
-  await unenroll(req.params.studentId, section.courseId);
-  hxRefresh(res);
-});
-
-router.post("/sections/:id/meetings", async (req, res) => {
-  const section = await getSection(req.params.id);
-  if (!section) return notFound(res, "Section not found");
-  const minutes = Number(str(req.body.minutes) || "15");
-  const startsAt = fromLocalInput(str(req.body.startsAt)) ?? new Date();
-  const m = await createMeeting(section.id, startsAt, minutes, req.user?.id ?? null);
-  hxRedirect(res, startsAt.getTime() <= Date.now() ? `/meetings/${m.id}/display` : `/sections/${section.id}`);
-});
-
-// ---------- attendance pivot ----------
-
-async function loadPivot(sectionId: string) {
-  const section = await getSection(sectionId);
-  if (!section) return null;
-  const pivot = await getSectionPivot(section.id, section.courseId);
-  return { section, pivot };
-}
-
-router.get("/sections/:id/attendance", async (req, res) => {
-  const data = await loadPivot(req.params.id);
-  if (!data) return notFound(res, "Section not found");
-  res.render("pages/attendance", {
-    title: `Attendance ${data.section.courseKey} sec ${data.section.number}`,
-    user: req.user,
-    ...data,
-  });
-});
+// ---------- attendance CSV ----------
 
 function csvCell(v: string | number) {
   const s = String(v);
@@ -115,9 +42,9 @@ function csvCell(v: string | number) {
 }
 
 router.get("/sections/:id/attendance.csv", async (req, res) => {
-  const data = await loadPivot(req.params.id);
-  if (!data) return notFound(res, "Section not found");
-  const { section, pivot } = data;
+  const section = await getSection(req.params.id);
+  if (!section) return notFound(res, "Section not found");
+  const pivot = await getSectionPivot(section.id, section.courseId);
   const header = [
     "group",
     "cmu_id",

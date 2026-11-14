@@ -6,7 +6,13 @@ block content
             li
                 a(href="/students") Students
             li=student.id
-    h1=`${student.id} · ${student.firstname} ${student.lastname}`
+    div(class="page-head")
+        hgroup
+            h1=`${student.firstname} ${student.lastname}`
+            p=student.id
+        a(href=`/students/${student.id}/edit` role="button" class="secondary")
+            i(class="fa-solid fa-pen")
+            |  Edit student
 
     article
         header
@@ -15,8 +21,6 @@ block content
             p
                 i(class="fa-solid fa-check pico-color-green-400")
                 = ` Linked${student.lineAccount.displayName ? ` to "${student.lineAccount.displayName}"` : ""} on ${fmtDateTime(student.lineAccount.linkedAt)}`
-            button(class="outline danger" hx-delete=`/students/${student.id}/line`
-                hx-confirm="Unlink this LINE account? The student can then register again with REG:<id> (e.g. new phone).") Unlink LINE
         else
             p
                 em Not registered on LINE yet (student sends REG:#{student.id}).
@@ -30,30 +34,14 @@ block content
                     tr
                         th Course
                         th Section
-                        th Move to
-                        th
                 tbody
                     each e in enrollments
                         tr
                             td
-                                a(href=`/courses/${e.courseId}`)=e.key
-                            td
-                                a(href=`/sections/${e.sectionId}`)=`sec ${e.section.number}`
-                            td
-                                - const others = e.course.sections.filter((s) => s.id !== e.sectionId)
-                                if others.length
-                                    form(hx-post=`/students/${student.id}/move` hx-confirm="Move student to this section?")
-                                        fieldset(role="group")
-                                            select(name="sectionId")
-                                                each s in others
-                                                    option(value=s.id)=`sec ${s.number}`
-                                            button(type="submit" class="outline") Move
-                                else
-                                    small —
-                            td
-                                a(href="#" class="danger-link"
-                                    hx-delete=`/students/${student.id}/enrollments/${e.courseId}`
-                                    hx-confirm=`Remove from ${e.key}? (Check-ins are kept.)`) Remove
+                                a(href=`/courses/${e.courseId}?section=${e.sectionId}`)=e.key
+                                if e.course.name
+                                    small=` — ${e.course.name}`
+                            td=`sec ${e.section.number}`
         else
             p
                 em Not enrolled in any course.
@@ -75,9 +63,9 @@ block content
                         each c in checkins
                             tr
                                 td=c.key
+                                td=`sec ${c.section}`
                                 td
-                                    a(href=`/sections/${c.sectionId}/attendance`)=`sec ${c.section}`
-                                td=fmtDateTime(c.meetingStartsAt)
+                                    a(href=`/meetings/${c.meetingId}`)=fmtDateTime(c.meetingStartsAt)
                                 td=fmtDateTime(c.checkedAt)
                                 td
                                     = c.method
@@ -86,17 +74,3 @@ block content
         else
             p
                 em No check-ins.
-
-    details
-        summary Edit details
-        article
-            form(hx-post=`/students/${student.id}`)
-                div(class="grid")
-                    label First name
-                        input(name="firstname" value=student.firstname required)
-                    label Last name
-                        input(name="lastname" value=student.lastname required)
-                button(type="submit") Save
-            hr
-            button(class="danger" hx-delete=`/students/${student.id}`
-                hx-confirm=`Delete ${student.id} with all enrollments, LINE link and check-ins?`) Delete student

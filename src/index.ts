@@ -12,7 +12,6 @@ import setupCommonMiddleWares from "./middlewares.js";
 import { PORT, NODE_ENV } from "./utils/env.js";
 import { fmtDateTime, fmtDate, fmtTime, fmt } from "./utils/time.js";
 import { UserError } from "@db/repos/errors.js";
-import { listOpenMeetings } from "@db/repos/meetings.js";
 import { courseKey } from "@db/repos/courses.js";
 import authRouter from "./routers/auth.js";
 import lineRouter from "./routers/line.js";
@@ -40,6 +39,12 @@ app.use(sessionIns);
 app.use(passportIns.initialize());
 app.use(passportIns.session());
 
+// Current path, so the nav can highlight the active section.
+app.use((req, res, next) => {
+  res.locals.path = req.path;
+  next();
+});
+
 // * Routers - need to load after session due to req.logout() function
 app.use(authRouter);
 app.use(coursesRouter);
@@ -49,15 +54,16 @@ app.use(studentsRouter);
 app.use(importRouter);
 
 // * Endpoints
-app.get("/", async (req, res, next) => {
+// Admins land on the Check-Ins list; everyone else sees the welcome page.
+app.get("/", async (req, res) => {
+  if (req.user?.isAdmin) return res.redirect("/meetings");
+  res.render("pages/index", { title: "Home", user: req.user });
+});
+
+app.get("/account", async (req, res) => {
+  if (!req.user) return res.redirect("/login");
   const sessions = await formatSession(req);
-  const openMeetings = req.user?.isAdmin ? await listOpenMeetings() : [];
-  res.render("pages/index", {
-    title: "Home",
-    user: req.user,
-    sessions: sessions,
-    openMeetings,
-  });
+  res.render("pages/account", { title: "Account", user: req.user, sessions });
 });
 
 // * Errors: UserError / upload errors -> 400 with a readable message (script.js alerts it).

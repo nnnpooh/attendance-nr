@@ -2,7 +2,7 @@ include ../components/head.pug
 body(class="container")
     include ../components/nav.pug
     main
-        h1 Credential Login
+        h1 Login
         article
             form(hx-post="/login")
                 input(type="email" name="email" placeholder="Email" pattern=".+@.+" required)

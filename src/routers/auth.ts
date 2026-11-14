@@ -42,7 +42,7 @@ router.post("/logout", function (req, res, next) {
 router.delete("/session", async function (req, res, next) {
   const sid = (req?.query?.sid ?? "") as string;
   const request = await deleteSession(sid);
-  res.setHeader("HX-Redirect", "/");
+  res.setHeader("HX-Redirect", "/account");
   res.send(`<div></div>`);
 });
 

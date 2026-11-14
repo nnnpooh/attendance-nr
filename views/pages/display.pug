@@ -1,7 +1,9 @@
 include ../components/head.pug
 body(class="container-fluid display-page")
     header(class="display-header")
-        a(href=`/sections/${meeting.sectionId}`) ← back
+        a(href=`/meetings/${meeting.id}` role="button" class="secondary outline")
+            i(class="fa-solid fa-arrow-left")
+            |  Back
         span=`${courseKey} · sec ${meeting.section.number}`
     main
         div(hx-get=`/meetings/${meeting.id}/code` hx-trigger="load")

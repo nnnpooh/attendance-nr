@@ -30,4 +30,4 @@ div(class="code-box"
         +countLine
         div(class="code-actions")
             button(class="outline" hx-post=`/meetings/${meeting.id}/extend` hx-vals='{"minutes":"5"}') Re-open 5 min
-            a(href=`/sections/${meeting.sectionId}/attendance` role="button") Attendance table
+            a(href=`/meetings/${meeting.id}` role="button") Who checked in
