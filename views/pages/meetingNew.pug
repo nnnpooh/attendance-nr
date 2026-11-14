@@ -5,14 +5,14 @@ block content
     if courses.length
         article
             form(hx-post="/meetings")
-                label Course and section
+                label Course and Section
                     +sectionSelect(courses, selected)
-                label Open for (minutes)
+                label Open For (minutes)
                     input(name="minutes" type="number" min="1" max="360" value="15" required)
                     small You can extend or close it early from the code screen.
                 button(type="submit")
                     i(class="fa-solid fa-play")
-                    |  Start now
+                    |  Start Now
     else
         article
             em

@@ -9,7 +9,7 @@ mixin countLine
 
 mixin recentList
     aside(class="recent")
-        h3 Recent check-ins
+        h3 Recent Check-Ins
         if recent.length
             ol
                 each r in recent
@@ -28,7 +28,7 @@ div(class="code-box"
     hx-trigger=(isOpen || notStarted) ? "every 1s" : false
     hx-swap="outerHTML")
     if notStarted
-        p(class="code-hint")=`Check-in opens at ${fmtDateTime(meeting.startsAt)}`
+        p(class="code-hint")=`Check-In opens at ${fmtDateTime(meeting.startsAt)}`
     else
         div(class="live-grid")
             div(class="live-main")
@@ -43,11 +43,11 @@ div(class="code-box"
                     +countLine
                     div(class="code-actions")
                         button(class="outline" hx-post=`/meetings/${meeting.id}/extend` hx-vals='{"minutes":"5"}') +5 min
-                        button(class="outline danger" hx-post=`/meetings/${meeting.id}/close` hx-confirm="Close check-in now?") Close now
+                        button(class="outline danger" hx-post=`/meetings/${meeting.id}/close` hx-confirm="Close check-in now?") Close Now
                 else
-                    p(class="code-hint") Check-in closed
+                    p(class="code-hint") Check-In Closed
                     +countLine
                     div(class="code-actions")
-                        button(class="outline" hx-post=`/meetings/${meeting.id}/extend` hx-vals='{"minutes":"5"}') Re-open 5 min
-                        a(href=`/meetings/${meeting.id}` role="button") Who checked in
+                        button(class="outline" hx-post=`/meetings/${meeting.id}/extend` hx-vals='{"minutes":"5"}') Re-Open 5 min
+                        a(href=`/meetings/${meeting.id}` role="button") Who Checked In
             +recentList

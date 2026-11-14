@@ -46,6 +46,24 @@ export async function getCheckin(id: string) {
   });
 }
 
+/** The check-in of one student for one meeting, if any. */
+export async function getCheckinFor(meetingId: string, studentId: string) {
+  return dbClient.query.checkinsTable.findFirst({
+    where: and(eq(checkinsTable.meetingId, meetingId), eq(checkinsTable.studentId, studentId)),
+  });
+}
+
+/** Edit time/reason of a MANUAL check-in. LINE check-ins are never edited. */
+export async function updateManualCheckin(
+  id: string,
+  input: { checkedAt: Date; reason: string; recordedBy: string | null }
+) {
+  await dbClient
+    .update(checkinsTable)
+    .set(input)
+    .where(and(eq(checkinsTable.id, id), eq(checkinsTable.method, "MANUAL")));
+}
+
 export async function deleteCheckin(id: string) {
   await dbClient.delete(checkinsTable).where(eq(checkinsTable.id, id));
 }

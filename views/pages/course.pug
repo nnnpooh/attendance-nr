@@ -13,7 +13,7 @@ block content
                 p=course.name
         a(href=`/courses/${course.id}/edit` role="button" class="secondary")
             i(class="fa-solid fa-pen")
-            |  Edit course
+            |  Edit Course
 
     if !section
         article
@@ -39,8 +39,6 @@ block content
                 |  Download CSV
 
         h3=`Secs ${section.number} · ${pivot.enrolledRows.length} Student(s) · ${pivot.meetings.length} Check-In(s)`
-        if pivot.meetings.length
-            +legend
         div(class="overflow-auto")
             table(class="pivot striped")
                 thead
@@ -73,14 +71,14 @@ block content
 
 
         if pivot.otherRows.length
-            h3(class="pico-color-amber-400")=`Checked in here but NOT enrolled in sec ${section.number} (${pivot.otherRows.length})`
+            h3(class="pico-color-amber-400")=`Checked In Here but NOT Enrolled in Sec ${section.number} (${pivot.otherRows.length})`
             div(class="overflow-auto")
                 table(class="pivot striped")
                     thead
                         tr
                             th ID
                             th Name
-                            th Enrolled in
+                            th Enrolled In
                             each m in pivot.meetings
                                 th(class="meeting-head")
                                     = fmt(m.startsAt, "DD/MM")
@@ -95,7 +93,7 @@ block content
                                 td(class="name")=`${row.student.firstname} ${row.student.lastname}`
                                 td
                                     if row.enrolledSection
-                                        a(href=`/courses/${course.id}?section=${row.enrolledSection.id}`)=`sec ${row.enrolledSection.number}`
+                                        a(href=`/courses/${course.id}?section=${row.enrolledSection.id}`)=`Sec ${row.enrolledSection.number}`
                                     else
                                         em not in #{course.key}
                                 each cell in row.cells
@@ -104,5 +102,32 @@ block content
                                     button(class="outline small"
                                         hx-post=`/sections/${section.id}/enroll`
                                         hx-vals=JSON.stringify({ studentId: row.student.id })
-                                        hx-confirm=(row.enrolledSection ? `Move ${row.student.id} from sec ${row.enrolledSection.number} to sec ${section.number}?` : `Enroll ${row.student.id} in sec ${section.number}?`))
-                                        = row.enrolledSection ? "Move here" : "Enroll here"
+                                        hx-confirm=(row.enrolledSection ? `Move ${row.student.id} from Sec ${row.enrolledSection.number} to Sec ${section.number}?` : `Enroll ${row.student.id} in Sec ${section.number}?`))
+                                        = row.enrolledSection ? "Move Here" : "Enroll Here"
+
+        if pivot.meetings.length
+            details(class="legend-help")
+                summary How to Read This Table
+                ul
+                    li
+                        span(class="legend present") 10:02
+                        |  Checked in via LINE at that time.
+                    li
+                        span(class="legend present manual")
+                            i(class="fa-solid fa-pen-to-square")
+                            |  10:02
+                        |  Marked present manually. Hover to see the reason.
+                    li
+                        span(class="legend absent") ·
+                        |  Absent.
+                    li Click any cell to edit it: mark an absent student present, change a manual check-in's time or reason, or mark someone absent.
+                    li Click a date in the header to open that check-in's page.
+                    li
+                        strong Present
+                        |  is the number of check-ins the student attended out of all check-ins of this section.
+                    li
+                        | "Checked In Here but NOT Enrolled" lists students from another section or course who checked in to this section. Use
+                        strong  Move Here
+                        |  /
+                        strong  Enroll Here
+                        |  to fix their enrollment.

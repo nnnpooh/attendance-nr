@@ -19,6 +19,8 @@ import {
   deleteCheckin,
   getMeetingAttendance,
   listRecentCheckins,
+  getCheckinFor,
+  updateManualCheckin,
 } from "@db/repos/checkins.js";
 import { UserError } from "@db/repos/errors.js";
 import { currentCode, CODE_PERIOD_SEC } from "@src/utils/totp.js";
@@ -77,7 +79,7 @@ router.get("/meetings/:id", async (req, res) => {
   if (!meeting) return notFound(res, "Meeting not found");
   const attendance = await getMeetingAttendance(meeting);
   res.render("pages/meeting", {
-    title: `${courseKey(meeting.section.course)} sec ${meeting.section.number}`,
+    title: `${courseKey(meeting.section.course)} Sec ${meeting.section.number}`,
     user: req.user,
     meeting,
     courseKey: courseKey(meeting.section.course),
@@ -91,7 +93,7 @@ router.get("/meetings/:id/display", async (req, res) => {
   const meeting = await getMeeting(req.params.id);
   if (!meeting) return notFound(res, "Meeting not found");
   res.render("pages/display", {
-    title: `Check-in ${courseKey(meeting.section.course)} sec ${meeting.section.number}`,
+    title: `Check-In ${courseKey(meeting.section.course)} Sec ${meeting.section.number}`,
     user: req.user,
     meeting,
     courseKey: courseKey(meeting.section.course),
@@ -145,20 +147,26 @@ router.delete("/meetings/:id", async (req, res) => {
   hxAfterDelete(req, res, `/meetings/${meeting.id}`, "/meetings");
 });
 
-// ---------- manual check-in ----------
+// ---------- edit one student's attendance (the pen / a grid cell) ----------
 
-router.get("/meetings/:id/manual", async (req, res) => {
+// One dialog for every case: absent -> mark present (manual), manual -> edit or
+// mark absent, LINE -> read-only + mark absent.
+router.get("/meetings/:id/attendance/:studentId", async (req, res) => {
   const meeting = await getMeeting(req.params.id);
   if (!meeting) return notFound(res, "Meeting not found");
-  const student = await getStudent(str(req.query.studentId));
+  const student = await getStudent(req.params.studentId);
   if (!student) return notFound(res, "Student not found");
-  res.render("components/manualDialog", {
+  const checkin = await getCheckinFor(meeting.id, student.id);
+  res.render("components/attendanceDialog", {
     meeting,
     student,
-    defaultTime: toLocalInput(meeting.startsAt),
+    checkin,
+    courseKey: courseKey(meeting.section.course),
+    defaultTime: toLocalInput(checkin?.checkedAt ?? meeting.startsAt),
   });
 });
 
+// Mark present (manual check-in).
 router.post("/checkins", async (req, res) => {
   const meeting = await getMeeting(str(req.body.meetingId));
   if (!meeting) return notFound(res, "Meeting not found");
@@ -179,13 +187,19 @@ router.post("/checkins", async (req, res) => {
   hxRefresh(res);
 });
 
-router.get("/checkins/:id", async (req, res) => {
+// Edit time / reason of a manual check-in.
+router.post("/checkins/:id", async (req, res) => {
   const checkin = await getCheckin(req.params.id);
   if (!checkin) return notFound(res, "Check-in not found");
-  const student = await getStudent(checkin.studentId);
-  res.render("components/checkinDialog", { checkin, student });
+  if (checkin.method !== "MANUAL") throw new UserError("LINE check-ins cannot be edited, only removed.");
+  const reason = str(req.body.reason);
+  if (!reason) throw new UserError("Please give a reason for the manual check-in.");
+  const checkedAt = fromLocalInput(str(req.body.checkedAt)) ?? checkin.checkedAt;
+  await updateManualCheckin(checkin.id, { checkedAt, reason, recordedBy: req.user?.id ?? null });
+  hxRefresh(res);
 });
 
+// Mark absent.
 router.delete("/checkins/:id", async (req, res) => {
   await deleteCheckin(req.params.id);
   hxRefresh(res);

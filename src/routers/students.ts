@@ -33,7 +33,7 @@ router.get("/students", async (req, res) => {
 // Create one student (optionally straight into a section)
 router.get("/students/new", async (req, res) => {
   const courses = (await listCoursesWithSections()).filter((c) => c.sections.length);
-  res.render("pages/studentNew", { title: "New student", user: req.user, courses });
+  res.render("pages/studentNew", { title: "New Student", user: req.user, courses });
 });
 
 router.post("/students", async (req, res) => {

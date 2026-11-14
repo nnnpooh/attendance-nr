@@ -1,7 +1,7 @@
 extends ../layouts/main.pug
 
 block content
-    h1 Import students (CSV)
+    h1 Import Students (CSV)
 
     article
         header
@@ -18,7 +18,7 @@ block content
             li Student IDs must be 9 digits starting with 6 or 7.
             li Existing students' names are updated from the file. Extra columns (e.g. email) are ignored.
             li A student can be in only one section per course; conflicts are shown and skipped.
-        a(href="/import/template.csv") Download template
+        a(href="/import/template.csv") Download Template
 
     article
         header
@@ -26,14 +26,14 @@ block content
         form(hx-post="/import/preview" hx-encoding="multipart/form-data" hx-target="#preview")
             input(type="file" name="file" accept=".csv,text/csv")
             details
-                summary …or paste CSV text
+                summary …or Paste CSV Text
                 textarea(name="csv" rows="6" placeholder=headers.join(","))
             button(type="submit") Preview
         div#preview
 
     article
         header
-            strong Course keys and sections
+            strong Course Keys and Sections
         if courses.length
             table
                 thead

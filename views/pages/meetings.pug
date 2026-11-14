@@ -9,7 +9,7 @@ block content
 
     form(method="get" action="/meetings" class="filter")
         select(name="course" data-autosubmit aria-label="Filter by course")
-            option(value="") All courses
+            option(value="") All Courses
             each c in courses
                 option(value=c.id selected=(c.id === courseId))=(c.name ? `${c.key} — ${c.name}` : c.key)
 
@@ -42,10 +42,10 @@ block content
                             td
                                 +meetingStatus(m, now)
                             td(class="row-actions")
-                                a(href=`/meetings/${m.id}/display` title="Show code (projector)" class="icon-action")
+                                a(href=`/meetings/${m.id}/display` title="Show Code (Projector)" class="icon-action")
                                     i(class="fa-solid fa-display")
                                 a(href="#" title="Delete" class="icon-action danger" hx-delete=`/meetings/${m.id}`
-                                    hx-confirm=`Delete the ${m.key} sec ${m.sectionNumber} check-in of ${fmtDateTime(m.startsAt)} and its ${m.checkinCount} check-in(s)?`)
+                                    hx-confirm=`Delete the ${m.key} Sec ${m.sectionNumber} check-in of ${fmtDateTime(m.startsAt)} and its ${m.checkinCount} check-in(s)?`)
                                     i(class="fa-solid fa-trash-can")
     else
         article

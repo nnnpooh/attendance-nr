@@ -16,7 +16,7 @@ router.use("/import", requireAdmin);
 router.get("/import", async (req, res) => {
   const courses = await listCoursesWithSections();
   res.render("pages/import", {
-    title: "Import students",
+    title: "Import Students",
     user: req.user,
     courses,
     headers: CSV_HEADERS,

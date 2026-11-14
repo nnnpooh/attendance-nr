@@ -1,7 +1,7 @@
 hr
 article
     header
-        strong(class="pico-color-green-400") Import done
+        strong(class="pico-color-green-400") Import Done
     ul
         li=`${applied.enrollments} enrollment(s) added`
         li=`${applied.students} student record(s) created/updated`
@@ -17,4 +17,4 @@ article
                         td=`line ${r.line}`
                         td=r.studentId
                         td=r.messages.join("; ")
-    a(href="/import" role="button" class="secondary") Import another file
+    a(href="/import" role="button" class="secondary") Import Another File

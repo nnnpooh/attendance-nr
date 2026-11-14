@@ -12,7 +12,7 @@ block content
             p=student.id
         a(href=`/students/${student.id}/edit` role="button" class="secondary")
             i(class="fa-solid fa-pen")
-            |  Edit student
+            |  Edit Student
 
     article
         header
@@ -41,14 +41,14 @@ block content
                                 a(href=`/courses/${e.courseId}?section=${e.sectionId}`)=e.key
                                 if e.course.name
                                     small=` — ${e.course.name}`
-                            td=`sec ${e.section.number}`
+                            td=`Sec ${e.section.number}`
         else
             p
                 em Not enrolled in any course.
 
     article
         header
-            strong=`Check-ins (${checkins.length})`
+            strong=`Check-Ins (${checkins.length})`
         if checkins.length
             div(class="overflow-auto")
                 table(class="striped")
@@ -57,13 +57,13 @@ block content
                             th Course
                             th Section
                             th Meeting
-                            th Checked in
+                            th Checked In
                             th Method
                     tbody
                         each c in checkins
                             tr
                                 td=c.key
-                                td=`sec ${c.section}`
+                                td=`Sec ${c.section}`
                                 td
                                     a(href=`/meetings/${c.meetingId}`)=fmtDateTime(c.meetingStartsAt)
                                 td=fmtDateTime(c.checkedAt)

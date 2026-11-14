@@ -6,11 +6,11 @@ block content
             li
                 a(href="/courses") Courses
             li New
-    h1 New course
+    h1 New Course
     article
         form(hx-post="/courses")
             div(class="grid")
-                label Course code
+                label Course Code
                     input(name="code" placeholder="123456" required pattern="[A-Za-z0-9]+" autofocus)
                 label Year (B.E.)
                     input(name="year" type="number" placeholder="2569" required)

@@ -4,7 +4,7 @@ body(class="container-fluid display-page")
         a(href=`/meetings/${meeting.id}` role="button" class="secondary outline")
             i(class="fa-solid fa-arrow-left")
             |  Back
-        span=`${courseKey} · sec ${meeting.section.number}`
+        span=`${courseKey} · Sec ${meeting.section.number}`
     main
         div(hx-get=`/meetings/${meeting.id}/code` hx-trigger="load")
     div#modal

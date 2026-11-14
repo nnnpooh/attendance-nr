@@ -1,0 +1,51 @@
+//- "Edit attendance" dialog for one student in one meeting (loaded into #modal).
+//- checkin: null = absent, MANUAL = editable, LINE = read-only.
+dialog(open)
+    article
+        header
+            button(aria-label="Close" rel="prev" data-close-dialog)
+            strong Edit Attendance
+        p
+            strong=`${student.id} ${student.firstname} ${student.lastname}`
+            br
+            small=`${courseKey} Sec ${meeting.section.number} · ${fmtDateTime(meeting.startsAt)}`
+
+        if !checkin
+            p
+                | Status:
+                strong  Absent
+            form(hx-post="/checkins")
+                input(type="hidden" name="meetingId" value=meeting.id)
+                input(type="hidden" name="studentId" value=student.id)
+                label Time
+                    input(type="datetime-local" name="checkedAt" value=defaultTime required)
+                label Reason
+                    input(name="reason" required autofocus placeholder="e.g. LINE not working, came late with permission")
+                footer
+                    button(type="button" class="secondary" data-close-dialog) Cancel
+                    button(type="submit") Mark Present
+
+        else if checkin.method === "MANUAL"
+            p
+                | Status:
+                strong  Present (Manual)
+            form(hx-post=`/checkins/${checkin.id}`)
+                label Time
+                    input(type="datetime-local" name="checkedAt" value=defaultTime required)
+                label Reason
+                    input(name="reason" value=checkin.reason required)
+                footer
+                    button(type="button" class="outline danger" hx-delete=`/checkins/${checkin.id}`
+                        hx-confirm="Remove this check-in (mark absent)?") Mark Absent
+                    button(type="submit") Save
+
+        else
+            p
+                | Status:
+                strong  Present (LINE)
+                br
+                small=`Checked in at ${fmtDateTime(checkin.checkedAt)}. LINE check-ins can't be edited.`
+            footer
+                button(type="button" class="secondary" data-close-dialog) Close
+                button(class="outline danger" hx-delete=`/checkins/${checkin.id}`
+                    hx-confirm="Remove this LINE check-in (mark absent)?") Mark Absent

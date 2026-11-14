@@ -6,11 +6,11 @@ mixin sectionSelect(courses, selected, emptyLabel)
         if emptyLabel
             option(value="")=emptyLabel
         else
-            option(value="" disabled selected=!selected) Choose course and section…
+            option(value="" disabled selected=!selected) Choose Course and Section…
         each c in courses
             optgroup(label=(c.name ? `${c.key} — ${c.name}` : c.key))
                 each s in c.sections
-                    option(value=s.id selected=(s.id === selected))=`${c.code} sec ${s.number} (${s.studentCount} students)`
+                    option(value=s.id selected=(s.id === selected))=`${c.code} Sec ${s.number} (${s.studentCount} students)`
 
 //- Open / Closed badge for a meeting.
 mixin meetingStatus(m, now)
@@ -21,32 +21,46 @@ mixin meetingStatus(m, now)
     else
         small Closed
 
-//- One attendance cell. Present -> opens check-in dialog; absent+clickable -> manual check-in.
+//- One cell of the course attendance grid. Clicking opens the "Edit attendance" dialog.
+//- Absent cells are only clickable for enrolled students (`clickable`).
 mixin checkinCell(checkin, meetingId, studentId, clickable)
+    - const edit = `/meetings/${meetingId}/attendance/${studentId}`
     if checkin
         td(class=`cell present ${checkin.method === "MANUAL" ? "manual" : ""}`
             title=(checkin.method === "MANUAL" ? `Manual: ${checkin.reason || ""}` : `LINE ${fmtDateTime(checkin.checkedAt)}`)
-            hx-get=`/checkins/${checkin.id}` hx-target="#modal")
+            hx-get=edit hx-target="#modal")
             if checkin.method === "MANUAL"
                 i(class="fa-solid fa-pen-to-square")
-                |
+                = " "
             = fmtTime(checkin.checkedAt)
     else if clickable
-        td(class="cell absent clickable" title="Absent — click to check in manually"
-            hx-get=`/meetings/${meetingId}/manual?studentId=${studentId}` hx-target="#modal") ·
+        td(class="cell absent clickable" title="Absent — click to mark present"
+            hx-get=edit hx-target="#modal") ·
     else
         td(class="cell absent")
 
-mixin legend
-    p(class="legend-line")
-        span(class="legend present") 10:02
-        |  LINE
-        span(class="legend present manual")
-            i(class="fa-solid fa-pen-to-square")
-            |  10:02
-        |  Manual
-        span(class="legend absent") ·
-        |  Absent
+//- Status / Time / Method / pen columns for one student on the check-in page.
+mixin attendanceCols(checkin, meetingId, studentId)
+    td
+        if checkin
+            span(class="badge present") Present
+        else
+            span(class="badge absent") Absent
+    td=checkin ? fmtTime(checkin.checkedAt) : "—"
+    td
+        if !checkin
+            | —
+        else if checkin.method === "MANUAL"
+            div(class="truncate" title=checkin.reason)
+                | Manual
+                if checkin.reason
+                    small=` — ${checkin.reason}`
+        else
+            | LINE
+    td(class="row-actions")
+        a(href="#" title="Edit Attendance" class="icon-action"
+            hx-get=`/meetings/${meetingId}/attendance/${studentId}` hx-target="#modal")
+            i(class="fa-solid fa-pen")
 
 //- Pen + trash icons at the end of a table row. Extra attributes go to the trash link.
 mixin rowActions(editHref)

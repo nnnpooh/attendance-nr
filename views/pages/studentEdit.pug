@@ -15,9 +15,9 @@ block content
             strong Name
         form(hx-post=`/students/${student.id}`)
             div(class="grid")
-                label First name
+                label First Name
                     input(name="firstname" value=student.firstname required)
-                label Last name
+                label Last Name
                     input(name="lastname" value=student.lastname required)
             div(class="page-actions")
                 button(type="submit") Save
@@ -43,11 +43,11 @@ block content
                                         hx-confirm=`Move ${student.id} to the selected section of ${e.key}?`)
                                         select(name="sectionId" aria-label="Section")
                                             each s in e.course.sections
-                                                option(value=s.id selected=(s.id === e.sectionId))=`sec ${s.number}`
+                                                option(value=s.id selected=(s.id === e.sectionId))=`Sec ${s.number}`
                                 else
-                                    =`sec ${e.section.number}`
+                                    =`Sec ${e.section.number}`
                             td(class="row-actions")
-                                a(href="#" title="Remove from course" class="icon-action danger"
+                                a(href="#" title="Remove from Course" class="icon-action danger"
                                     hx-delete=`/students/${student.id}/enrollments/${e.courseId}`
                                     hx-confirm=`Remove from ${e.key}? (Check-ins are kept.)`)
                                     i(class="fa-solid fa-trash-can")
@@ -58,7 +58,7 @@ block content
             form(hx-post=`/students/${student.id}/enroll`)
                 fieldset(role="group")
                     +sectionSelect(otherCourses, null)
-                    button(type="submit" class="nowrap") Add to course
+                    button(type="submit" class="nowrap") Add to Course
 
     article
         header
@@ -74,6 +74,6 @@ block content
                 em Not registered on LINE yet (student sends REG:#{student.id}).
 
     details
-        summary Danger zone
+        summary Danger Zone
         button(class="danger" hx-delete=`/students/${student.id}`
-            hx-confirm=`Delete ${student.id} with all enrollments, LINE link and check-ins?`) Delete student
+            hx-confirm=`Delete ${student.id} with all enrollments, LINE link and check-ins?`) Delete Student

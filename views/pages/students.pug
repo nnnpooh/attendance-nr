@@ -5,7 +5,7 @@ block content
         h1 Students
         a(href="/students/new" role="button")
             i(class="fa-solid fa-plus")
-            |  New student
+            |  New Student
     input(type="search" name="q" value=q placeholder="Search ID or name…"
         hx-get="/students" hx-trigger="input changed delay:300ms, search"
         hx-target="#student-results" hx-push-url="true")

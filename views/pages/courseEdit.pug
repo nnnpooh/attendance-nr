@@ -15,7 +15,7 @@ block content
             strong Details
         form(hx-post=`/courses/${course.id}`)
             div(class="grid")
-                label Course code
+                label Course Code
                     input(name="code" value=course.code required pattern="[A-Za-z0-9]+")
                 label Year (B.E.)
                     input(name="year" type="number" value=course.year required)
@@ -38,7 +38,7 @@ block content
                     tr
                         th Section
                         th Students
-                        th Check-ins
+                        th Check-Ins
                         th
                 tbody
                     each s in course.sections
@@ -48,16 +48,16 @@ block content
                             td=s.meetingCount
                             +rowActions(null)(
                                 hx-delete=`/sections/${s.id}`
-                                hx-confirm=`Delete sec ${s.number} with its ${s.studentCount} enrollment(s) and ${s.meetingCount} check-in(s)?`)
+                                hx-confirm=`Delete Sec ${s.number} with its ${s.studentCount} enrollment(s) and ${s.meetingCount} check-in(s)?`)
         else
             p
                 em No sections yet.
         form(hx-post=`/courses/${course.id}/sections`)
             fieldset(role="group")
                 input(name="number" placeholder="Section number(s), e.g. 004 or 004, 005" required)
-                button(type="submit") Add section
+                button(type="submit") Add Section
 
     details
-        summary Danger zone
+        summary Danger Zone
         button(class="danger" hx-delete=`/courses/${course.id}`
-            hx-prompt=`Delete ${course.key} with ALL sections, enrollments and check-ins? This cannot be undone.\n\nType the course code (${course.code}) to confirm:`) Delete course
+            hx-prompt=`Delete ${course.key} with ALL sections, enrollments and check-ins? This cannot be undone.\n\nType the course code (${course.code}) to confirm:`) Delete Course

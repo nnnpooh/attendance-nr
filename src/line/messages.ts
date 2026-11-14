@@ -26,11 +26,11 @@ export const msg = {
 
   // Check-in
   checkinOk: (courseCode: string, section: string, at: Date) =>
-    `✅ Checked in: ${courseCode} sec ${section} @ ${fmtDateTime(at)}`,
+    `✅ Checked in: ${courseCode} Sec ${section} @ ${fmtDateTime(at)}`,
   checkinDuplicate: (courseCode: string, section: string, at: Date) =>
-    `Already checked in: ${courseCode} sec ${section} @ ${fmtTime(at)}`,
+    `Already checked in: ${courseCode} Sec ${section} @ ${fmtTime(at)}`,
   wrongSection: (courseCode: string, mySection: string) =>
-    `⚠️ You are enrolled in ${courseCode} sec ${mySection}, not this section.`,
+    `⚠️ You are enrolled in ${courseCode} Sec ${mySection}, not this section.`,
   notInCourse: (courseCode: string) =>
     `⚠️ You are not on the ${courseCode} class list. Please contact your instructor.`,
   invalidCode: () => "Invalid or expired code. Send the code currently on screen.",
@@ -49,14 +49,14 @@ export const msg = {
       enrollments.length
         ? "Courses:\n" +
           enrollments
-            .map((e) => `• ${e.code} sec ${e.section} (${e.semester}/${e.year})`)
+            .map((e) => `• ${e.code} Sec ${e.section} (${e.semester}/${e.year})`)
             .join("\n")
         : "Not enrolled in any course.",
     ].join("\n"),
   records: (rows: { code: string; section: string; checkedAt: Date }[]) =>
     rows.length
       ? "Recent check-ins\n" +
-        rows.map((r) => `• ${r.code} sec ${r.section} @ ${fmtDateTime(r.checkedAt)}`).join("\n")
+        rows.map((r) => `• ${r.code} Sec ${r.section} @ ${fmtDateTime(r.checkedAt)}`).join("\n")
       : "No check-ins found.",
   unknown: () => "Sorry, I didn't understand that.\n\n" + msg.help(),
 };

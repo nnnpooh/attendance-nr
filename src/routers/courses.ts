@@ -24,7 +24,7 @@ router.get("/courses", async (req, res) => {
 
 // Create
 router.get("/courses/new", (req, res) => {
-  res.render("pages/courseNew", { title: "New course", user: req.user });
+  res.render("pages/courseNew", { title: "New Course", user: req.user });
 });
 
 router.post("/courses", async (req, res) => {

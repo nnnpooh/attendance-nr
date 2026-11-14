@@ -152,12 +152,14 @@ table.pivot .meeting-head {
 .cell {
   text-align: center;
 }
-.cell.present,
+/* "table.pivot tbody tr td.cell…" (not just ".cell…") so these beat Pico's
+   striped-row background, which otherwise hides the colour on odd rows. */
+table.pivot tbody tr td.cell.present,
 .legend.present {
   background: rgba(46, 125, 50, 0.35);
   cursor: pointer;
 }
-.cell.present.manual,
+table.pivot tbody tr td.cell.present.manual,
 .legend.present.manual {
   background: rgba(245, 124, 0, 0.35);
 }
@@ -165,7 +167,7 @@ table.pivot .meeting-head {
   cursor: pointer;
   color: var(--pico-muted-color);
 }
-.cell.absent.clickable:hover {
+table.pivot tbody tr td.cell.absent.clickable:hover {
   background: rgba(100, 108, 255, 0.25);
 }
 .legend {
@@ -310,8 +312,57 @@ table.pivot .meeting-head {
 .filter select {
   max-width: 28rem;
 }
-.legend-line .legend {
-  margin-left: 0.75rem;
+/* Collapsible "How to read this table" under the course grid */
+.legend-help {
+  margin-top: 2rem;
+}
+.legend-help summary {
+  color: var(--pico-muted-color);
+}
+.legend-help li {
+  list-style: disc;
+}
+.legend-help .legend {
+  margin-right: 0.25rem;
+}
+
+/* Check-in page: Status / Time / Method table */
+table.attendance td {
+  vertical-align: middle;
+}
+.truncate {
+  max-width: 18rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.badge {
+  display: inline-block;
+  padding: 0.05rem 0.6rem;
+  border-radius: 1rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.badge.present {
+  background: rgba(46, 125, 50, 0.35);
+}
+.badge.absent {
+  border: 1px solid var(--pico-muted-border-color);
+  color: var(--pico-muted-color);
+}
+table.attendance tbody tr.row-absent td {
+  color: var(--pico-muted-color);
+}
+
+/* Dialog footer (also when it sits inside a <form>) */
+dialog footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+dialog footer button {
+  width: auto;
+  margin-bottom: 0;
 }
 
 /* Buttons whose label must stay on one line (e.g. in a role="group" next to a select) */

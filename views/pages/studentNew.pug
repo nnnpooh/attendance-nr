@@ -6,17 +6,17 @@ block content
             li
                 a(href="/students") Students
             li New
-    h1 New student
+    h1 New Student
     article
         form(hx-post="/students")
             div(class="grid")
                 label Student ID
                     input(name="id" required pattern="[67][0-9]{8}" title="9 digits starting with 6 or 7" placeholder="650612345" autofocus)
-                label First name
+                label First Name
                     input(name="firstname" required)
-                label Last name
+                label Last Name
                     input(name="lastname" required)
-            label Enroll in (optional)
+            label Enroll In (optional)
                 +sectionSelect(courses, null, "— not now —")
             div(class="page-actions")
                 button(type="submit") Create
