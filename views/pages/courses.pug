@@ -1,0 +1,45 @@
+extends ../layouts/main.pug
+
+block content
+    h1 Courses
+
+    if courses.length
+        each c in courses
+            article
+                header
+                    a(href=`/courses/${c.id}`)
+                        strong=c.key
+                    if c.name
+                        |
+                        span=` — ${c.name}`
+                if c.sections.length
+                    div(class="chips")
+                        each s in c.sections
+                            a(href=`/sections/${s.id}` class="chip")=`sec ${s.number}`
+                                small=` (${s.studentCount})`
+                else
+                    p
+                        em No sections yet.
+    else
+        p
+            em No courses yet.
+
+    details
+        summary(role="button" class="outline") New course
+        article
+            form(hx-post="/courses")
+                div(class="grid")
+                    label Course code
+                        input(name="code" placeholder="259103" required pattern="[A-Za-z0-9]+")
+                    label Year (B.E.)
+                        input(name="year" type="number" placeholder="2568" required)
+                    label Semester
+                        select(name="semester")
+                            option(value="1") 1
+                            option(value="2") 2
+                            option(value="3") 3 (summer)
+                label Name (optional)
+                    input(name="name" placeholder="Engineering Materials")
+                label Sections (optional, comma separated)
+                    input(name="sections" placeholder="001, 002, 003")
+                button(type="submit") Create

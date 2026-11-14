@@ -1,0 +1,19 @@
+dialog(open)
+    article
+        header
+            button(aria-label="Close" rel="prev" data-close-dialog)
+            strong Check-in
+        if student
+            p
+                strong=`${student.id} ${student.firstname} ${student.lastname}`
+        ul
+            li=`Meeting: ${fmtDateTime(checkin.meeting.startsAt)}`
+            li=`Checked in: ${fmtDateTime(checkin.checkedAt)}`
+            li=`Method: ${checkin.method}`
+            if checkin.reason
+                li=`Reason: ${checkin.reason}`
+            li=`Recorded: ${fmtDateTime(checkin.createdAt)}`
+        footer
+            button(type="button" class="secondary" data-close-dialog) Close
+            |
+            button(class="danger" hx-delete=`/checkins/${checkin.id}` hx-confirm="Delete this check-in (mark absent)?") Delete check-in

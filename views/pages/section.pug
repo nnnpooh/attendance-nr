@@ -1,0 +1,117 @@
+extends ../layouts/main.pug
+
+block content
+    nav(aria-label="breadcrumb")
+        ul
+            li
+                a(href="/courses") Courses
+            li
+                a(href=`/courses/${section.courseId}`)=section.courseKey
+            li=`sec ${section.number}`
+    h1=`${section.courseKey} · sec ${section.number}`
+    p
+        a(href=`/sections/${section.id}/attendance` role="button") Attendance table
+
+    //- ---------- Check-in ----------
+    article
+        header
+            strong Check-in meetings
+        form(hx-post=`/sections/${section.id}/meetings`)
+            div(class="grid")
+                label Duration (minutes)
+                    input(name="minutes" type="number" min="1" max="360" value="15" required)
+                label Start (leave empty = now)
+                    input(name="startsAt" type="datetime-local")
+                label &nbsp;
+                    button(type="submit") Start check-in
+        if meetings.length
+            div(class="overflow-auto")
+                table
+                    thead
+                        tr
+                            th Date
+                            th Window
+                            th Check-ins
+                            th Status
+                            th
+                    tbody
+                        each m in meetings
+                            - const open = m.startsAt <= now && now < m.endsAt
+                            - const upcoming = now < m.startsAt
+                            tr
+                                td=fmtDate(m.startsAt)
+                                td=`${fmtTime(m.startsAt)}–${fmtTime(m.endsAt)}`
+                                td=m.checkinCount
+                                td
+                                    if open
+                                        mark Open
+                                    else if upcoming
+                                        span Scheduled
+                                    else
+                                        small Closed
+                                td
+                                    a(href=`/meetings/${m.id}/display`) Show code
+                                    |
+                                    a(href="#" class="danger-link" hx-delete=`/meetings/${m.id}`
+                                        hx-confirm=`Delete this meeting and its ${m.checkinCount} check-in(s)?`) Delete
+        else
+            p
+                em No meetings yet.
+
+    //- ---------- Roster ----------
+    article
+        header
+            strong=`Students (${roster.length})`
+            small  — add many at once on the
+                a(href="/import") Import
+                |  page
+        details
+            summary Add one student
+            form(hx-post=`/sections/${section.id}/students`)
+                div(class="grid")
+                    label Student ID
+                        input(name="id" required pattern="\\d{9}" placeholder="650612345")
+                    label First name
+                        input(name="firstname" placeholder="required if new")
+                    label Last name
+                        input(name="lastname" placeholder="required if new")
+                    label Email
+                        input(name="email" type="email")
+                label
+                    input(type="checkbox" name="move")
+                    | Move here if already in another section of this course
+                button(type="submit") Add to sec #{section.number}
+        if roster.length
+            div(class="overflow-auto")
+                table(class="striped")
+                    thead
+                        tr
+                            th ID
+                            th Name
+                            th Email
+                            th LINE
+                            th
+                    tbody
+                        each s in roster
+                            tr
+                                td
+                                    a(href=`/students/${s.id}`)=s.id
+                                td=`${s.firstname} ${s.lastname}`
+                                td=s.email
+                                td
+                                    if s.lineUserId
+                                        i(class="fa-solid fa-check pico-color-green-400" title="LINE linked")
+                                    else
+                                        small(title="Not registered on LINE yet") —
+                                td
+                                    a(href="#" class="danger-link"
+                                        hx-delete=`/sections/${section.id}/students/${s.id}`
+                                        hx-confirm=`Remove ${s.id} from sec ${section.number}? (Check-ins are kept.)`) Remove
+        else
+            p
+                em No students in this section yet.
+
+    details
+        summary Danger zone
+        button(class="danger" hx-delete=`/sections/${section.id}`
+            hx-confirm=`Delete sec ${section.number} with its enrollments, meetings and check-ins?`) Delete section

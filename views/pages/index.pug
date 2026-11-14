@@ -1,11 +1,37 @@
-include ../components/head.pug
-body(class="container")
-    include ../components/nav.pug
-    main
-        h1 Home
-        if user
-            include ../components/userCard.pug
-            include ../components/session.pug
+extends ../layouts/main.pug
+
+block content
+    h1 Home
+    if user
+        if user.isAdmin
+            article
+                header
+                    strong Open check-ins
+                if openMeetings.length
+                    ul
+                        each m in openMeetings
+                            li
+                                a(href=`/meetings/${m.id}/display`)=`${courseKey(m.section.course)} sec ${m.section.number}`
+                                small=` — until ${fmtTime(m.endsAt)}`
+                else
+                    p
+                        em No check-in is open. Start one from a section page.
+                footer
+                    a(href="/courses" role="button") Courses
+                    |
+                    a(href="/students" role="button" class="secondary") Students
+                    |
+                    a(href="/import" role="button" class="secondary") Import CSV
         else
             article
-                h2 Welcome, Guest
+                p
+                    strong Not authorized.
+                    |  This app is for admin accounts only.
+        include ../components/userCard.pug
+        include ../components/session.pug
+    else
+        article
+            h2 Welcome, Guest
+            p
+                a(href="/login") Log in
+                |  to manage attendance.

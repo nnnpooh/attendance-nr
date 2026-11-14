@@ -1,0 +1,57 @@
+extends ../layouts/main.pug
+
+block content
+    nav(aria-label="breadcrumb")
+        ul
+            li
+                a(href="/courses") Courses
+            li=course.key
+    h1=course.key
+    if course.name
+        p=course.name
+
+    article
+        header
+            strong Sections
+        if course.sections.length
+            table
+                thead
+                    tr
+                        th Section
+                        th Students
+                        th
+                tbody
+                    each s in course.sections
+                        tr
+                            td
+                                a(href=`/sections/${s.id}`)=`sec ${s.number}`
+                            td=s.studentCount
+                            td
+                                a(href=`/sections/${s.id}/attendance`) Attendance
+        else
+            p
+                em No sections yet.
+        form(hx-post=`/courses/${course.id}/sections`)
+            fieldset(role="group")
+                input(name="number" placeholder="Section number(s), e.g. 004 or 004, 005" required)
+                button(type="submit") Add section
+
+    details
+        summary Edit course
+        article
+            form(hx-post=`/courses/${course.id}`)
+                div(class="grid")
+                    label Course code
+                        input(name="code" value=course.code required)
+                    label Year (B.E.)
+                        input(name="year" type="number" value=course.year required)
+                    label Semester
+                        select(name="semester")
+                            each n in [1, 2, 3]
+                                option(value=n selected=(course.semester === n))=n
+                label Name
+                    input(name="name" value=course.name)
+                button(type="submit") Save
+            hr
+            button(class="danger" hx-delete=`/courses/${course.id}`
+                hx-confirm=`Delete ${course.key} including ALL sections, enrollments, meetings and check-ins? This cannot be undone.`) Delete course

@@ -13,3 +13,5 @@ migration
 dist
 
 seed_accounts.json
+*.sqlite-wal
+*.sqlite-shm

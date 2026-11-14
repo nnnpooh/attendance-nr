@@ -8,7 +8,14 @@ import { type Express } from "express";
 export default function setupCommonMiddleWares(app: Express) {
   app.set("view engine", "pug");
   app.use(express.urlencoded({ extended: true }));
-  app.use(express.json());
+  app.use(
+    express.json({
+      // Keep the raw bytes: the LINE webhook signature is computed over them.
+      verify: (req, _res, buf) => {
+        (req as express.Request).rawBody = buf;
+      },
+    })
+  );
   app.use(express.static("public"));
   app.use(morgan("dev", { immediate: true }));
   const scriptSources = ["'self'", "https://unpkg.com"];

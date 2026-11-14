@@ -2,17 +2,25 @@ header
     nav
         ul
             li
-                a(href="/" class="custom-icon")
+                a(href="/" class="custom-icon" title="Home")
                     i(class="fa-solid fa-xl fa-home")
+        if user && user.isAdmin
+            ul
+                li
+                    a(href="/courses") Courses
+                li
+                    a(href="/students") Students
+                li
+                    a(href="/import") Import
         if !user
             ul
-                li 
-                    a(href="/login" class="custom-icon") 
+                li
+                    a(href="/login" class="custom-icon")
                         i(class="fa-solid fa-xl fa-right-to-bracket")
-        else            
-            ul 
-                li 
+        else
+            ul
+                li
                     em=user.name
-                li    
-                    a(href="#" class="custom-icon" hx-post="/logout") 
+                li
+                    a(href="#" class="custom-icon" hx-post="/logout")
                         i(class="fa-solid fa-xl fa-right-from-bracket pico-color-red-400")

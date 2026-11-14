@@ -1,0 +1,67 @@
+extends ../layouts/main.pug
+
+block content
+    h1 Import students (CSV)
+
+    article
+        header
+            strong Format
+        p One row per student per course. One file can fill many courses and sections.
+        pre
+            code=`${headers.join(",")}\n259103-2568-1,001,650612345,Somchai,Jaidee,somchai_j@cmu.ac.th\n259500-2568-1,002,650612345,Somchai,Jaidee,`
+        ul
+            li
+                code course_key
+                |  and
+                code section
+                |  must already exist (see the table below). Section "1" is read as "001".
+            li
+                code email
+                |  is optional. Existing students' names are updated from the file.
+            li A student can be in only one section per course; conflicts are shown and skipped.
+        a(href="/import/template.csv") Download template
+
+    article
+        header
+            strong Upload
+        form(hx-post="/import/preview" hx-encoding="multipart/form-data" hx-target="#preview")
+            input(type="file" name="file" accept=".csv,text/csv")
+            details
+                summary …or paste CSV text
+                textarea(name="csv" rows="6" placeholder=headers.join(","))
+            button(type="submit") Preview
+        div#preview
+
+    article
+        header
+            strong Course keys and sections
+        if courses.length
+            table
+                thead
+                    tr
+                        th course_key
+                        th Name
+                        th section (students)
+                tbody
+                    each c in courses
+                        tr
+                            td
+                                code=c.key
+                            td=c.name
+                            td
+                                if c.sections.length
+                                    each s, i in c.sections
+                                        code=s.number
+                                        small=` (${s.studentCount})`
+                                        if i < c.sections.length - 1
+                                            | ,
+                                else
+                                    em
+                                        | no sections —
+                                        a(href=`/courses/${c.id}`) add some
+        else
+            p
+                em
+                    | No courses yet —
+                    a(href="/courses") create one
+                    |  first.

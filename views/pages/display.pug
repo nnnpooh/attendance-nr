@@ -1,0 +1,8 @@
+include ../components/head.pug
+body(class="container-fluid display-page")
+    header(class="display-header")
+        a(href=`/sections/${meeting.sectionId}`) ← back
+        span=`${courseKey} · sec ${meeting.section.number}`
+    main
+        div(hx-get=`/meetings/${meeting.id}/code` hx-trigger="load")
+    div#modal

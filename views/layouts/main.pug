@@ -1,0 +1,7 @@
+include ../components/head.pug
+body(class="container")
+    include ../components/nav.pug
+    main
+        block content
+    //- htmx loads dialogs (manual check-in etc.) into here
+    div#modal

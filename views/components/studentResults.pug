@@ -1,0 +1,23 @@
+p
+    small=`${rows.length < total ? `Showing ${rows.length} of ${total}` : `${total}`} student(s)`
+if rows.length
+    div(class="overflow-auto")
+        table(class="striped")
+            thead
+                tr
+                    th ID
+                    th Name
+                    th Email
+                    th LINE
+            tbody
+                each s in rows
+                    tr
+                        td
+                            a(href=`/students/${s.id}`)=s.id
+                        td=`${s.firstname} ${s.lastname}`
+                        td=s.email
+                        td
+                            if s.lineUserId
+                                i(class="fa-solid fa-check pico-color-green-400" title="LINE linked")
+                            else
+                                small —

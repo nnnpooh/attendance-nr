@@ -1,0 +1,33 @@
+//- Polled by the projector page. Replaces itself every second while open.
+mixin countLine
+    p(class="code-count")
+        strong=`${count.enrolled} / ${enrolled}`
+        |  enrolled checked in
+        if count.others
+            br
+            small(class="pico-color-amber-400")=`+ ${count.others} from other sections / courses`
+
+div(class="code-box"
+    hx-get=`/meetings/${meeting.id}/code`
+    hx-trigger=(isOpen || notStarted) ? "every 1s" : false
+    hx-swap="outerHTML")
+    if isOpen
+        p(class="code-hint") Send this code to the LINE OA
+        div(class="code-value")=code
+        progress(value=secondsLeft max=period)
+        p(class="code-meta")
+            span=`new code in ${secondsLeft}s`
+            |  ·
+            span=`closes in ${minutesLeft} min (${fmtTime(meeting.endsAt)})`
+        +countLine
+        div(class="code-actions")
+            button(class="outline" hx-post=`/meetings/${meeting.id}/extend` hx-vals='{"minutes":"5"}') +5 min
+            button(class="outline danger" hx-post=`/meetings/${meeting.id}/close` hx-confirm="Close check-in now?") Close now
+    else if notStarted
+        p(class="code-hint")=`Check-in opens at ${fmtDateTime(meeting.startsAt)}`
+    else
+        p(class="code-hint") Check-in closed
+        +countLine
+        div(class="code-actions")
+            button(class="outline" hx-post=`/meetings/${meeting.id}/extend` hx-vals='{"minutes":"5"}') Re-open 5 min
+            a(href=`/sections/${meeting.sectionId}/attendance` role="button") Attendance table

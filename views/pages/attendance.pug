@@ -1,0 +1,112 @@
+extends ../layouts/main.pug
+
+mixin cells(row, clickable)
+    each cell in row.cells
+        if cell.checkin
+            - const c = cell.checkin
+            td(class=`cell present ${c.method === "MANUAL" ? "manual" : ""}`
+                title=(c.method === "MANUAL" ? `Manual: ${c.reason || ""}` : `LINE ${fmtDateTime(c.checkedAt)}`)
+                hx-get=`/checkins/${c.id}` hx-target="#modal")
+                if c.method === "MANUAL"
+                    i(class="fa-solid fa-pen-to-square")
+                    |
+                = fmtTime(c.checkedAt)
+        else if clickable
+            td(class="cell absent clickable" title="Absent — click to check in manually"
+                hx-get=`/meetings/${cell.meetingId}/manual?studentId=${row.student.id}` hx-target="#modal") ·
+        else
+            td(class="cell absent")
+
+block content
+    nav(aria-label="breadcrumb")
+        ul
+            li
+                a(href="/courses") Courses
+            li
+                a(href=`/courses/${section.courseId}`)=section.courseKey
+            li
+                a(href=`/sections/${section.id}`)=`sec ${section.number}`
+            li Attendance
+    hgroup
+        h1=`Attendance · ${section.courseKey} sec ${section.number}`
+        p
+            span(class="legend present") 10:02
+            |  LINE
+            span(class="legend present manual")
+                i(class="fa-solid fa-pen-to-square")
+                |  10:02
+            |  manual (hover for reason)
+            span(class="legend absent") ·
+            |  absent — click to check in manually
+    p
+        a(href=`/sections/${section.id}/attendance.csv` role="button" class="secondary")
+            i(class="fa-solid fa-download")
+            |  Download CSV
+
+    if !pivot.meetings.length
+        article
+            em No meetings yet for this section.
+    else
+        h3=`Enrolled in sec ${section.number} (${pivot.enrolledRows.length})`
+        div(class="overflow-auto")
+            table(class="pivot striped")
+                thead
+                    tr
+                        th ID
+                        th Name
+                        each m in pivot.meetings
+                            th(class="meeting-head" title=fmtDateTime(m.startsAt))
+                                = fmt(m.startsAt, "DD/MM")
+                                br
+                                small=fmtTime(m.startsAt)
+                        th Present
+                tbody
+                    each row in pivot.enrolledRows
+                        tr
+                            td
+                                a(href=`/students/${row.student.id}`)=row.student.id
+                            td(class="name")=`${row.student.firstname} ${row.student.lastname}`
+                            +cells(row, true)
+                            td=`${row.present}/${pivot.meetings.length}`
+                    if !pivot.enrolledRows.length
+                        tr
+                            td(colspan=pivot.meetings.length + 3)
+                                em No students enrolled in this section.
+
+        h3(class=pivot.otherRows.length ? "pico-color-amber-400" : "")
+            =`Checked in here but NOT enrolled in sec ${section.number} (${pivot.otherRows.length})`
+        if pivot.otherRows.length
+            div(class="overflow-auto")
+                table(class="pivot striped")
+                    thead
+                        tr
+                            th ID
+                            th Name
+                            th Enrolled in
+                            each m in pivot.meetings
+                                th(class="meeting-head")
+                                    = fmt(m.startsAt, "DD/MM")
+                                    br
+                                    small=fmtTime(m.startsAt)
+                            th
+                    tbody
+                        each row in pivot.otherRows
+                            tr
+                                td
+                                    a(href=`/students/${row.student.id}`)=row.student.id
+                                td(class="name")=`${row.student.firstname} ${row.student.lastname}`
+                                td
+                                    if row.enrolledSection
+                                        a(href=`/sections/${row.enrolledSection.id}/attendance`)=`sec ${row.enrolledSection.number}`
+                                    else
+                                        em not in #{section.courseKey}
+                                +cells(row, false)
+                                td
+                                    button(class="outline small"
+                                        hx-post=`/sections/${section.id}/enroll`
+                                        hx-vals=JSON.stringify({ studentId: row.student.id })
+                                        hx-confirm=(row.enrolledSection ? `Move ${row.student.id} from sec ${row.enrolledSection.number} to sec ${section.number}?` : `Enroll ${row.student.id} in sec ${section.number}?`))
+                                        = row.enrolledSection ? "Move here" : "Enroll here"
+        else
+            p
+                em Nobody from another section checked in here.

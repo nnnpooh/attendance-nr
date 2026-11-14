@@ -6,7 +6,7 @@ type usersTableType = typeof usersTable.$inferSelect;
 declare global {
   namespace Express {
     interface Request {
-      // newField: string;
+      rawBody?: Buffer;
     }
     interface User extends usersTableType {}
   }

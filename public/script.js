@@ -21,3 +21,15 @@ function detectColorScheme() {
   document.documentElement.setAttribute("data-theme", "dark");
 }
 detectColorScheme();
+
+// Close htmx-loaded dialogs (manual check-in etc.)
+document.addEventListener("click", function (event) {
+  const btn = event.target.closest("[data-close-dialog]");
+  if (btn) {
+    event.preventDefault();
+    btn.closest("dialog")?.remove();
+  }
+});
+document.addEventListener("keydown", function (event) {
+  if (event.key === "Escape") document.querySelector("#modal dialog")?.remove();
+});

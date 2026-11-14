@@ -1,0 +1,63 @@
+- const s = analysis.summary
+hr
+h3 Preview
+p
+    | #{s.total} row(s):
+    strong(class="pico-color-green-400")=`${s.enroll} to enroll`
+    | ,
+    span=`${s.skip} skipped`
+    | ,
+    strong(class=s.error ? "pico-color-red-400" : "")=`${s.error} error(s)`
+    | . Directory: #{s.newStudents} new, #{s.updatedStudents} updated.
+if s.error
+    p(class="pico-color-red-400")
+        small Rows with errors will NOT be imported. Fix the file and preview again, or import the valid rows now.
+
+div(class="overflow-auto")
+    table(class="striped import-preview")
+        thead
+            tr
+                th Line
+                th Status
+                th course_key
+                th sec
+                th ID
+                th Name
+                th Email
+                th Notes
+        tbody
+            each r in analysis.rows
+                tr(class=`row-${r.action}`)
+                    td=r.line
+                    td
+                        if r.action === "enroll"
+                            span(class="pico-color-green-400") ✅ enroll
+                        else if r.action === "skip"
+                            span = skip
+                        else
+                            span(class="pico-color-red-400") ✖ error
+                    td=r.courseKey
+                    td=r.section
+                    td=r.studentId
+                    td=`${r.firstname} ${r.lastname}`
+                    td=r.email
+                    td
+                        if r.studentChange === "new" && r.action !== "error"
+                            div
+                                small new student
+                        if r.studentChange === "update" && r.action !== "error"
+                            each c in r.changes
+                                div
+                                    small=`↻ ${c}`
+                        each m in r.messages
+                            div
+                                small=m
+
+if s.enroll || s.updatedStudents || s.newStudents
+    form(hx-post="/import/commit" hx-target="#preview"
+        hx-confirm=`Import ${s.enroll} enrollment(s)${s.error ? ` and skip ${s.error} error row(s)` : ""}?`)
+        textarea(name="csv" hidden)=csv
+        button(type="submit")=`Import ${s.enroll} enrollment(s)`
+else
+    p
+        em Nothing to import.

@@ -1,0 +1,104 @@
+extends ../layouts/main.pug
+
+block content
+    nav(aria-label="breadcrumb")
+        ul
+            li
+                a(href="/students") Students
+            li=student.id
+    h1=`${student.id} · ${student.firstname} ${student.lastname}`
+
+    article
+        header
+            strong LINE
+        if student.lineAccount
+            p
+                i(class="fa-solid fa-check pico-color-green-400")
+                = ` Linked${student.lineAccount.displayName ? ` to "${student.lineAccount.displayName}"` : ""} on ${fmtDateTime(student.lineAccount.linkedAt)}`
+            button(class="outline danger" hx-delete=`/students/${student.id}/line`
+                hx-confirm="Unlink this LINE account? The student can then register again with REG:<id> (e.g. new phone).") Unlink LINE
+        else
+            p
+                em Not registered on LINE yet (student sends REG:#{student.id}).
+
+    article
+        header
+            strong Courses
+        if enrollments.length
+            table
+                thead
+                    tr
+                        th Course
+                        th Section
+                        th Move to
+                        th
+                tbody
+                    each e in enrollments
+                        tr
+                            td
+                                a(href=`/courses/${e.courseId}`)=e.key
+                            td
+                                a(href=`/sections/${e.sectionId}`)=`sec ${e.section.number}`
+                            td
+                                - const others = e.course.sections.filter((s) => s.id !== e.sectionId)
+                                if others.length
+                                    form(hx-post=`/students/${student.id}/move` hx-confirm="Move student to this section?")
+                                        fieldset(role="group")
+                                            select(name="sectionId")
+                                                each s in others
+                                                    option(value=s.id)=`sec ${s.number}`
+                                            button(type="submit" class="outline") Move
+                                else
+                                    small —
+                            td
+                                a(href="#" class="danger-link"
+                                    hx-delete=`/students/${student.id}/enrollments/${e.courseId}`
+                                    hx-confirm=`Remove from ${e.key}? (Check-ins are kept.)`) Remove
+        else
+            p
+                em Not enrolled in any course.
+
+    article
+        header
+            strong=`Check-ins (${checkins.length})`
+        if checkins.length
+            div(class="overflow-auto")
+                table(class="striped")
+                    thead
+                        tr
+                            th Course
+                            th Section
+                            th Meeting
+                            th Checked in
+                            th Method
+                    tbody
+                        each c in checkins
+                            tr
+                                td=c.key
+                                td
+                                    a(href=`/sections/${c.sectionId}/attendance`)=`sec ${c.section}`
+                                td=fmtDateTime(c.meetingStartsAt)
+                                td=fmtDateTime(c.checkedAt)
+                                td
+                                    = c.method
+                                    if c.reason
+                                        small=` (${c.reason})`
+        else
+            p
+                em No check-ins.
+
+    details
+        summary Edit details
+        article
+            form(hx-post=`/students/${student.id}`)
+                div(class="grid")
+                    label First name
+                        input(name="firstname" value=student.firstname required)
+                    label Last name
+                        input(name="lastname" value=student.lastname required)
+                    label Email
+                        input(name="email" type="email" value=student.email)
+                button(type="submit") Save
+            hr
+            button(class="danger" hx-delete=`/students/${student.id}`
+                hx-confirm=`Delete ${student.id} with all enrollments, LINE link and check-ins?`) Delete student

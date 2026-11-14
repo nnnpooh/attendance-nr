@@ -1,0 +1,9 @@
+extends ../layouts/main.pug
+
+block content
+    h1 Students
+    input(type="search" name="q" value=q placeholder="Search ID, name or email…"
+        hx-get="/students" hx-trigger="input changed delay:300ms, search"
+        hx-target="#student-results" hx-push-url="true")
+    div#student-results
+        include ../components/studentResults.pug

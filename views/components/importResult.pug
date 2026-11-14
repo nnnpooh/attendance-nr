@@ -1,0 +1,20 @@
+hr
+article
+    header
+        strong(class="pico-color-green-400") Import done
+    ul
+        li=`${applied.enrollments} enrollment(s) added`
+        li=`${applied.students} student record(s) created/updated`
+        if analysis.summary.skip
+            li=`${analysis.summary.skip} row(s) skipped (duplicates / already enrolled)`
+        if analysis.summary.error
+            li(class="pico-color-red-400")=`${analysis.summary.error} row(s) with errors were not imported:`
+    if analysis.summary.error
+        table
+            tbody
+                each r in analysis.rows.filter((r) => r.action === "error")
+                    tr
+                        td=`line ${r.line}`
+                        td=r.studentId
+                        td=r.messages.join("; ")
+    a(href="/import" role="button" class="secondary") Import another file
