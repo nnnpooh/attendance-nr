@@ -1,0 +1,13 @@
+allowBuilds:
+  bcrypt: true
+  better-sqlite3: true
+  esbuild: true
+  sqlite3: true
+
+ignoredBuiltDependencies:
+  - bcrypt
+  - esbuild
+
+onlyBuiltDependencies:
+  - better-sqlite3
+  - sqlite3

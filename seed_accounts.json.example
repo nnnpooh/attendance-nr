@@ -1,0 +1,4 @@
+[
+  { "username": "admin1@cmu.com", "password": "admin1", "isAdmin": true },
+  { "username": "admin2@cmu.com", "password": "admin2", "isAdmin": true }
+]
