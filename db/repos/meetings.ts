@@ -11,13 +11,13 @@ import { courseKey } from "./courses.js";
 import { newSecret } from "@src/utils/totp.js";
 import { UserError } from "./errors.js";
 
-export const MAX_MEETING_MINUTES = 6 * 60;
+export const MAX_MEETING_MINUTES = 30 * 24 * 60; // 30 days
 
 export async function createMeeting(
   sectionId: string,
   startsAt: Date,
   minutes: number,
-  createdBy: string | null
+  createdBy: string | null,
 ) {
   if (!Number.isFinite(minutes) || minutes < 1 || minutes > MAX_MEETING_MINUTES)
     throw new UserError(`Duration must be 1-${MAX_MEETING_MINUTES} minutes.`);
@@ -51,7 +51,9 @@ export async function listMeetingsForSection(sectionId: string) {
 }
 
 /** All meetings (newest first) with attendance counts, optionally for one course. */
-export async function listMeetings(opts: { courseId?: string; limit?: number } = {}) {
+export async function listMeetings(
+  opts: { courseId?: string; limit?: number } = {},
+) {
   const rows = await dbClient
     .select({
       id: meetingsTable.id,
@@ -89,12 +91,15 @@ export async function lastUsedSectionId() {
   return m?.sectionId;
 }
 
-export async function findOpenMeetingForSection(sectionId: string, now = new Date()) {
+export async function findOpenMeetingForSection(
+  sectionId: string,
+  now = new Date(),
+) {
   return dbClient.query.meetingsTable.findFirst({
     where: and(
       eq(meetingsTable.sectionId, sectionId),
       lte(meetingsTable.startsAt, now),
-      gt(meetingsTable.endsAt, now)
+      gt(meetingsTable.endsAt, now),
     ),
   });
 }
@@ -126,7 +131,9 @@ export async function extendMeeting(id: string, minutes: number) {
   const base = Math.max(Date.now(), m.endsAt.getTime());
   const endsAt = new Date(base + minutes * 60_000);
   if (endsAt.getTime() - m.startsAt.getTime() > MAX_MEETING_MINUTES * 60_000)
-    throw new UserError(`A meeting cannot be longer than ${MAX_MEETING_MINUTES} minutes.`);
+    throw new UserError(
+      `A meeting cannot be longer than ${MAX_MEETING_MINUTES} minutes.`,
+    );
   await dbClient
     .update(meetingsTable)
     .set({ endsAt })
@@ -149,8 +156,8 @@ export async function countCheckins(meetingId: string, sectionId: string) {
       enrollmentsTable,
       and(
         eq(enrollmentsTable.studentId, checkinsTable.studentId),
-        eq(enrollmentsTable.sectionId, sectionId)
-      )
+        eq(enrollmentsTable.sectionId, sectionId),
+      ),
     )
     .where(eq(checkinsTable.meetingId, meetingId));
   return { enrolled: row.enrolled, others: row.total - row.enrolled };
