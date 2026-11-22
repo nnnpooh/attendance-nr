@@ -27,7 +27,7 @@ const sessionIns = session({
     path: "/",
     httpOnly: true,
     secure: NODE_ENV === "production" ? true : false,
-    maxAge: 60 * 60 * 1000,
+    maxAge: 60 * 60 * 1000 * 24 * 30, // 30 days
     sameSite: "lax",
   },
   saveUninitialized: false,
