@@ -7,7 +7,7 @@ import crypto from "crypto";
  * floor(now / PERIOD) is HMAC-SHA1(secret, step) truncated to DIGITS digits.
  * Nothing is stored per code; the server recomputes and compares.
  */
-export const CODE_PERIOD_SEC = 20;
+export const CODE_PERIOD_SEC = 12;
 export const CODE_DIGITS = 6;
 /** Also accept codes this many steps in the past (typing / network delay). */
 export const CODE_GRACE_STEPS = 1;
@@ -42,7 +42,11 @@ export function currentCode(secretHex: string, nowMs = Date.now()) {
 }
 
 /** True if `code` is the current code or one of the previous CODE_GRACE_STEPS codes. */
-export function verifyCode(secretHex: string, code: string, nowMs = Date.now()) {
+export function verifyCode(
+  secretHex: string,
+  code: string,
+  nowMs = Date.now(),
+) {
   const step = stepAt(nowMs);
   for (let i = 0; i <= CODE_GRACE_STEPS; i++) {
     const expected = codeForStep(secretHex, step - i);
